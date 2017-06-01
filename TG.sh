@@ -1,0 +1,293 @@
+#!/usr/bin/env bash
+
+THIS_DIR=$(cd $(dirname $0); pwd)
+cd $THIS_DIR
+
+logo() {
+    declare -A logo
+    seconds="0.004"
+logo[0]="  .          '||    ||' '||'''|  '||    ||' '||'|.  '||'''|  '||''|."
+logo[1]=".||.   ... .  |||  |||   || .     |||  |||   ||  ||  || .     ||   ||"
+logo[2]=" ||   || ||   |'|..'||   ||'|     |'|..'||   ||''|.  ||'|     ||''|'"
+logo[3]=" ||    |''    | '|' ||   ||       | '|' ||   ||   || ||       ||   |."
+logo[4]=" '|.' '|||.  .|. | .||. .||....| .|. | .||. .||..|' .||....| .||.  '|'"
+logo[5]="    .|...'"
+logo[6]="➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖"
+logo[7]="Channel : @tgMember"
+logo[8]="Develop by @sajjad_021"
+printf "\e[38;5;213m\t"
+    for i in ${!logo[@]}; do
+        for x in `seq 0 ${#logo[$i]}`; do
+            printf "${logo[$i]:$x:1}"
+            sleep $seconds
+        done
+        printf "\n\t"
+    done
+printf "\n"
+}
+
+log() {
+  echo -e "\033[38;5;105m .               /|\,/ |\,  ,- _~,   /\|,/ \|,   - _,,     ,- _~,  -_ /\,\033[0;00m"
+  echo -e "\033[38;5;142m||    _          /| || ||   (' /| /  /| || ||     -/  )   (' /| /   || ,,\033[0;00m"
+  echo -e "\033[38;5;099m=||=  / \\        || || ||  ((  ||/=  || || ||    ~||_<   ((  || =  /|| /|.\033[0;00m"
+  echo -e "\033[38;5;034m||  || ||        ||=|= ||  ((  ||    ||=|= ||     || |\  (( |||    \||/-\,\033[0;00m"
+  echo -e "\033[38;5;406m||  || ||       ~|| || ||   ( / |   ~|| || ||     ,/--||  (   |     ||  \.,\033[0;00m"
+  echo -e "\033[38;5;129m||  \|_-|        |, |\,|\,   -____-  |, |\,|\,   _--_-'    -____- _---_-|.\033[0;00m"
+         echo -e "\033[38;5;129m||   -_-_\033[0;00m"
+            echo -e "\033[38;5;129m,_-_-\.\033[0;00m"
+ }
+
+install_luarocks() {
+ echo -e "\e[38;5;142mInstalling LuaRocks\e"
+  git clone https://github.com/keplerproject/luarocks.git
+  cd luarocks
+  git checkout tags/v2.4.2 # Current stable
+
+  PREFIX="$THIS_DIR/.luarocks"
+
+  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/luarocks --force-config
+   make build && make install
+cd ..
+  rm -rf luarocks
+}
+
+install_rocks() {
+   ./.luarocks/bin/luarocks install redis-lua
+    sudo service redis-server restart
+    sudo service redis-server start
+}
+  
+tg() {
+echo -e "\e[38;5;099minstall telegram-cli\e"
+    wget https://valtman.name/files/telegram-cli-1222
+    mv telegram-cli-1222 telegram-cli
+    chmod +x telegram-cli
+		chmod +x TG
+}
+  
+install2() {
+echo -e "\e[38;5;034mInstalling more dependencies\e"
+    sudo apt-get install screen -y
+    sudo apt-get install tmux -y
+		sudo apt-get --force-yes install git wget screen tmux libconfig9 libevent-dev libjansson4 libstdc++6 lua-socket lua5.2 liblua5.2 make unzip redis-server software-properties-common g++
+    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+    sudo apt-get install -y gcc-4.9 g++-4.9
+    sudo update-alternatives —install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 —slave /usr/bin/g++ g++ /usr/bin/g++-4.9
+}
+
+install() {
+echo -e "\e[38;5;035mUpdating packages\e"
+  sudo apt-get update -y
+	sudo apt-get upgrade -y
+
+echo -e "\\e[38;5;129mInstalling dependencies\e"
+sudo apt install tor -y
+sudo apt install -y obfs4proxy
+sudo systemctl daemon-reload
+sudo systemctl restart tor.service
+sudo apt install obfsproxy -y
+sudo apt install polipo -y
+sudo systemctl restart tor.service
+sudo apt install -y polipo
+sudo apt install torsocks
+sudo apt install dnscrypt-proxy -y
+sudo systemctl daemon-reload
+sudo systemctl restart tor.service
+sudo cat /var/log/tor/log
+sudo add-apt-repository ppa:dani.behzi/traktor
+sudo apt update -y
+sudo apt install -y traktor
+install2
+install_luarocks
+install_rocks
+tg
+sudo apt-get -y update
+sudo apt-get -y upgrade
+sudo apt-get -y dist-upgrade
+sudo apt-get -y autoremove
+sudo apt autoclean
+sudo service redis-server restart
+sudo service redis-server start
+log
+echo -e "\e[38;5;046mInstalling packages successfully\033[0;00m"
+menu
+}
+
+inf() {
+memTotal_b=`free -b |grep Mem |awk '{print $2}'`
+memFree_b=`free -b |grep Mem |awk '{print $4}'`
+memBuffer_b=`free -b |grep Mem |awk '{print $6}'`
+memCache_b=`free -b |grep Mem |awk '{print $7}'`
+
+memTotal_m=`free -m |grep Mem |awk '{print $2}'`
+memFree_m=`free -m |grep Mem |awk '{print $4}'`
+memBuffer_m=`free -m |grep Mem |awk '{print $6}'`
+memCache_m=`free -m |grep Mem |awk '{print $7}'`
+CPUPer=`top -b -n1 | grep "Cpu(s)" | awk '{print $2 + $4}'`
+uptime=`uptime`
+ProcessCnt=`ps -A | wc -l`
+memUsed_b=$(($memTotal_b-$memFree_b-$memBuffer_b-$memCache_b))
+memUsed_m=$(($memTotal_m-$memFree_m-$memBuffer_m-$memCache_m))
+memUsedPrc=$((($memUsed_b*100)/$memTotal_b))
+echo -e "➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\033[38;5;208mServer Information\033[0;00m➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖"
+echo ">Total Ram : $memTotal_m MB  Ram in use : $memUsed_m MB - $memUsedPrc% used!"
+echo '>Cpu in use : '"$CPUPer"'%'
+echo '>Server Uptime : '"$uptime"
+}
+
+cln()  {
+ sudo service redis-server start
+ echo ">> Enter the ADS-ID,that you wanna delete :"
+  read -rp ' ' ID
+  rm -rf ~/.telegram-cli/TG-"$ID"/data
+  rm -rf TG-"$ID".lua
+  redis-cli --raw keys "TG"$ID* | xargs redis-cli del
+  echo ">> Bot number '$ID' seccessfuly deleted."
+}
+
+cr() {
+ name=TG
+  if [[ -e $name.lua ]] ; then
+      i=1
+      while [[ -e $name-$i.lua ]] ; do
+          let i++
+      done
+      name=$name-$i
+  fi
+  cat TG.lua >> "$name".lua
+  sed -i 's/ADS-ID/'$i'/g' "$name".lua
+echo "new TG seccessfuly created
+       TG number "$i"
+      run your tg Advertising by :"
+echo "
+       ./TG "$i"
+"
+./TG "$i"
+}
+
+anticrash() {
+while TRUE ; do
+  for tgAdvertising in TG *.sh ; do
+	  entr="${TG%.*}"
+    entry="${entr/-/ }"
+    tmux kill-session -t $THIS_DIR
+    rm -rf ~/.telegram-cli/$entry/data/animation/*
+    rm -rf ~/.telegram-cli/$entry/data/audio/*
+    rm -rf ~/.telegram-cli/$entry/data/document/*
+    rm -rf ~/.telegram-cli/$entry/data/photo/*
+    rm -rf ~/.telegram-cli/$entry/data/sticker/*
+    rm -rf ~/.telegram-cli/$entry/data/temp/*
+    rm -rf ~/.telegram-cli/$entry/data/video/*
+    rm -rf ~/.telegram-cli/$entry/data/voice/*
+    rm -rf ~/.telegram-cli/$entry/data/profile_photo/*
+    tmux new-session -d -s $THIS_DIR "./$entr"
+    tmux detach -s $THIS_DIR
+  done
+  echo All tgAds bot is Running!
+  sleep 1800
+done
+}
+
+menu() {
+echo -e "➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\033[38;5;208mMENU\033[0;00m➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖"
+echo -e "1 => \033[38;5;208mInstall\033[0;00m"
+echo -e "2 => \033[38;5;208mNew bot\033[0;00m"
+echo -e "3 => \033[38;5;208manticrash - Trun On All Robot's\033[0;00m"
+echo -e "4 => \033[38;5;208mTrun Off All Robot's\033[0;00m"
+echo -e "5 => \033[38;5;208mReturn last session\033[0;00m"
+echo -e "6 => \033[38;5;208mServer info\033[0;00m"
+echo -e "7 => \033[38;5;208mRemove bot\033[0;00m"
+echo -e "0 => \033[38;5;208mExit\033[0;00m"
+echo -e "\033[38;5;208m  ➖  ➖  ➖➖➖➖➖➖  ➖  ➖  ➖  \033[0;00m"
+echo '>Channel : '"@tgMember"
+echo '>Develop by '"@sajjad_021"
+# Options in ./config.sh <option>
+read VAR
+if [ "$VAR" = 1 ]; then
+  clear
+  logo
+  install
+  menu
+elif [ "$VAR" = 2 ]; then
+	cr
+	exit
+elif [ "$VAR" = 3 ]; then
+ 	log
+	anticrash
+	menu
+elif [ "$VAR" = 4 ]; then
+	killall telegram-cli
+	tmux kill-session -t $THIS_DIR
+	log
+	echo -e '\e[34mSessions closed\e[0m'
+	menu
+elif [ "$VAR" = 5 ]; then
+	tmux attach-session -t $THIS_DIR
+elif [ "$VAR" = 6 ]; then
+  log
+	inf
+	menu
+elif [ "$VAR" = 7 ]; then
+cln
+menu
+elif [ "$VAR" = 0 ]; then
+	clear
+	log
+	exit
+elif [ "$VAR" = "" ]; then
+	clear
+	echo -e '\e[31mOpcion invalida\e[0m'
+	else
+	clear
+	echo -e '\e[31mOpcion invalida\e[0m'
+fi
+}
+
+if [ "$1" ]; then   
+   id="${1/a/}"
+    if [ -a "$THIS_DIR"/TG-"$id".lua ]; then
+      screen -x -s TG-"$id" quit
+      while true ; do
+        screen -s TG-"$id" ./telegram-cli -p TG-"$id" -s TG-"$id".lua
+        sleep 10
+      done
+			fi
+     if [ -a "$THIS_DIR"/TG-"$1".lua ]; then
+      ./telegram-cli -p TG-"$1" -s TG-"$1".lua
+    else
+    menu
+   fi
+fi
+
+if [ "$1" = "info" ]; then
+  clear
+	log
+	inf
+fi
+
+if [ "$1" = "tmux" ]; then
+	log
+  anticrash
+fi
+
+if [ "$1" = "cr" ]; then
+  log
+  cr
+fi
+
+if [ "$1" = "help" ]; then
+menu
+fi
+
+if [ ! -f telegram-cli ]; then
+    echo -e "\033[38;5;208mError! telegram-cli not found, Please reply to this message:\033[1;208m"
+    read -p "Do you want to install and config? [y/n] = "
+	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
+        install
+				menu
+    elif [ "$REPLY" == "n" ] || [ "$REPLY" == "N" ]; then
+        exit 1
+  fi
+fi
+
+menu
