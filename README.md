@@ -2,12 +2,12 @@
 best bot in telegram for broadcasting, advertising and seen. The New version and professional of tabchi bot. base in new telegram-cli.
 
 ```
-git clone https://github.com/tgMember/tgAdvertising.git && cd tgAdvertising && bash TG.sh
+git clone https://github.com/tgMember/tgAdvertising.git && cd tgAdvertising && bash TG
 ```
 
 for see help use belove command: 
 ```
-./TG.sh help
+./TG help
 ```
 
 for run robot use:
