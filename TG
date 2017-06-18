@@ -60,7 +60,7 @@ install_rocks() {
 tg() {
 echo -e "\e[38;5;099minstall telegram-cli\e"
     wget https://valtman.name/files/telegram-cli-1121
-    mv telegram-cli-1222 telegram-cli
+    mv telegram-cli-1121 telegram-cli
     chmod +x telegram-cli
 		chmod +x TG
 }
