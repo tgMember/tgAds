@@ -59,7 +59,7 @@ install_rocks() {
   
 tg() {
 echo -e "\e[38;5;099minstall telegram-cli\e"
-    wget https://valtman.name/files/telegram-cli-1222
+    wget https://valtman.name/files/telegram-cli-1121
     mv telegram-cli-1222 telegram-cli
     chmod +x telegram-cli
 		chmod +x TG
@@ -166,24 +166,14 @@ echo "
 }
 
 anticrash() {
-while TRUE ; do
-  for tgAdvertising in TG *.sh ; do
-	  entr="${TG%.*}"
-    entry="${entr/-/ }"
-    tmux kill-session -t $THIS_DIR
-    rm -rf ~/.telegram-cli/$entry/data/animation/*
-    rm -rf ~/.telegram-cli/$entry/data/audio/*
-    rm -rf ~/.telegram-cli/$entry/data/document/*
-    rm -rf ~/.telegram-cli/$entry/data/photo/*
-    rm -rf ~/.telegram-cli/$entry/data/sticker/*
-    rm -rf ~/.telegram-cli/$entry/data/temp/*
-    rm -rf ~/.telegram-cli/$entry/data/video/*
-    rm -rf ~/.telegram-cli/$entry/data/voice/*
-    rm -rf ~/.telegram-cli/$entry/data/profile_photo/*
-    tmux new-session -d -s $THIS_DIR "./$entr"
-    tmux detach -s $THIS_DIR
+  while true ; do
+    for entr in TG * ; do
+      entry="${TG-*/.lua/}"
+    tmux kill-session -t $entry
+    tmux new-session -d -s $entry "./$entr"
+    tmux detach -s $entry
   done
-  echo All tgAds bot is Running!
+  echo All TG Advertising is Running!
   sleep 1800
 done
 }
