@@ -36,15 +36,13 @@ log() {
          echo -e "\033[38;5;129m||   -_-_\033[0;00m"
             echo -e "\033[38;5;129m,_-_-\.\033[0;00m"
  }
-
+ 
 install_luarocks() {
  echo -e "\e[38;5;142mInstalling LuaRocks\e"
   git clone https://github.com/keplerproject/luarocks.git
   cd luarocks
   git checkout tags/v2.4.2 # Current stable
-
   PREFIX="$THIS_DIR/.luarocks"
-
   ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/luarocks --force-config
    make build && make install
 cd ..
@@ -52,65 +50,69 @@ cd ..
 }
 
 install_rocks() {
-   ./.luarocks/bin/luarocks install redis-lua
-    sudo service redis-server restart
-    sudo service redis-server start
+  rocks="luasocket luasec redis-lua lua-term dkjson lanes xml fakeredis luaexpat luasec lbase64 luafilesystem lub ansicolors lua-cjson feedparser serpent"
+    for rock in $rocks; do
+      ./.luarocks/bin/luarocks install $rock
+    done
 }
   
 tg() {
 echo -e "\e[38;5;099minstall telegram-cli\e"
-    wget https://valtman.name/files/telegram-cli-1121
-    mv telegram-cli-1121 telegram-cli
-    chmod +x telegram-cli
-		chmod +x TG
+  git clone --recursive https://github.com/sajjad-021/tg.git
+  git pull
+	git submodule update --init --recursive
+	patch -i "disable-python-and-libjansson.patch" -p 0 --batch --forward
+	RET=$?;
+	mv tg .tg
+	cd .tg
+  patch -i "../disable-python-and-libjansson.patch" -p 0 --batch --forward
+	RET=$?;
+	if [ $RET -ne 0 ]; then
+		autoconf -i
+	fi
+  ./configure && make
+	cd ..
 }
-  
+
 install2() {
-echo -e "\e[38;5;034mInstalling more dependencies\e"
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+sudo apt-get update
+sudo apt-get install -y gcc-4.9 g++-4.9
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4
+sudo apt-get install libstdc++6
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test 
     sudo apt-get install screen -y
     sudo apt-get install tmux -y
-		sudo apt-get --force-yes install git wget screen tmux libconfig9 libevent-dev libjansson4 libstdc++6 lua-socket lua5.2 liblua5.2 make unzip redis-server software-properties-common g++
-    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-    sudo apt-get install -y gcc-4.9 g++-4.9
-    sudo update-alternatives —install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 —slave /usr/bin/g++ g++ /usr/bin/g++-4.9
+		sudo apt-get install redis-server -y
+		sudo apt-get install libreadline-dev libconfig-dev libssl-dev libraries libraries-dev lua5.2 liblua5.2-dev libevent-dev libjansson* libpython-dev make autoconf unzip git redis-server g++ -y ?force-yes
 }
 
 install() {
+chmod 777 TG
 echo -e "\e[38;5;035mUpdating packages\e"
-  sudo apt-get update -y
-	sudo apt-get upgrade -y
-
+  sudo apt update -y
+	sudo apt upgrade -y
 echo -e "\\e[38;5;129mInstalling dependencies\e"
-sudo apt install tor -y
-sudo apt install -y obfs4proxy
-sudo systemctl daemon-reload
-sudo systemctl restart tor.service
-sudo apt install obfsproxy -y
-sudo apt install polipo -y
-sudo systemctl restart tor.service
-sudo apt install -y polipo
-sudo apt install torsocks
-sudo apt install dnscrypt-proxy -y
-sudo systemctl daemon-reload
-sudo systemctl restart tor.service
-sudo cat /var/log/tor/log
-sudo add-apt-repository ppa:dani.behzi/traktor
-sudo apt update -y
-sudo apt install -y traktor
 install2
 install_luarocks
 install_rocks
 tg
-sudo apt-get -y update
-sudo apt-get -y upgrade
+sudo apt -y update
+sudo apt -y upgrade
 sudo apt-get -y dist-upgrade
-sudo apt-get -y autoremove
+sudo apt -y autoremove
 sudo apt autoclean
 sudo service redis-server restart
-sudo service redis-server start
-log
-echo -e "\e[38;5;046mInstalling packages successfully\033[0;00m"
-menu
+	echo -e "you can launch bot with \033[38;5;208m ./TG 1 , ./TG 2 , ....\033[1;208m"
+   read -p "Do you want to install and config? [y/n] = "
+	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
+       while true ; do
+         ./TG 1
+       sleep 10
+      done
+    elif [ "$REPLY" == "n" ] || [ "$REPLY" == "N" ]; then
+      menu
+		fi
 }
 
 inf() {
@@ -135,91 +137,77 @@ echo '>Cpu in use : '"$CPUPer"'%'
 echo '>Server Uptime : '"$uptime"
 }
 
-cln()  {
- sudo service redis-server start
- echo ">> Enter the ADS-ID,that you wanna delete :"
-  read -rp ' ' ID
-  rm -rf ~/.telegram-cli/TG-"$ID"/data
-  rm -rf TG-"$ID".lua
-  redis-cli --raw keys "TG"$ID* | xargs redis-cli del
-  echo ">> Bot number '$ID' seccessfuly deleted."
-}
-
 cr() {
- name=TG
-  if [[ -e $name.lua ]] ; then
-      i=1
-      while [[ -e $name-$i.lua ]] ; do
-          let i++
-      done
-      name=$name-$i
-  fi
-  cat TG.lua >> "$name".lua
-  sed -i 's/ADS-ID/'$i'/g' "$name".lua
-echo "new TG seccessfuly created
-       TG number "$i"
-      run your tg Advertising by :"
-echo "
-       ./TG "$i"
-"
-./TG "$i"
+  mkdir -p "$THIS_DIR"/.telegram-cli/AdsBot"$1"
+	cfg="$THIS_DIR"/.telegram-cli/AdsBot$1/AdsBot.cfg
+	TG="$THIS_DIR"/TG-$1.lua
+	if [[ ! -f $cfg ]]; then
+		echo "default_profile = \"AdsBot$1\";AdsBot$1 = {config_directory = \"$THIS_DIR/.telegram-cli/AdsBot$1\";test = false;msg_num = true;};" >> $cfg
+	fi
+	if [[ ! -f $TG ]]; then
+		cat TG.lua >> TG-$1.lua
+		sed -i 's/Ads-ID/'$1'/g' TG-$1.lua
+	fi
 }
 
 anticrash() {
-  while true ; do
-    for entr in TG * ; do
-      entry="${TG-*/.lua/}"
-    tmux kill-session -t $entry
-    tmux new-session -d -s $entry "./$entr"
-    tmux detach -s $entry
+COUNTER=0
+  while [ $COUNTER -lt 5 ]; do
+		for tgAdvertising in TG-*.lua ; do
+			AdsBot="${tgAdvertising%.*}"
+			num="${AdsBot/TG-/}"
+			tmux kill-session -t AdsBot-"$num"
+			for files in "$THIS_DIR"/.telegram-cli/AdsBot"$num"/downloads ; do
+				rm -rf $files/*
+			done
+			TMUX= tmux new-session -d -s AdsBot-"$num" "bash TG $num"
+			tmux detach -s AdsBot-"$num"
+		done
+    sleep 1
   done
-  echo All TG Advertising is Running!
-  sleep 1800
-done
 }
 
 menu() {
 echo -e "➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\033[38;5;208mMENU\033[0;00m➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖"
 echo -e "1 => \033[38;5;208mInstall\033[0;00m"
-echo -e "2 => \033[38;5;208mNew bot\033[0;00m"
-echo -e "3 => \033[38;5;208manticrash - Trun On All Robot's\033[0;00m"
-echo -e "4 => \033[38;5;208mTrun Off All Robot's\033[0;00m"
-echo -e "5 => \033[38;5;208mReturn last session\033[0;00m"
-echo -e "6 => \033[38;5;208mServer info\033[0;00m"
-echo -e "7 => \033[38;5;208mRemove bot\033[0;00m"
-echo -e "0 => \033[38;5;208mExit\033[0;00m"
+echo -e "2 => \033[38;5;208mUpdate\033[0;00m"
+echo -e "3 => \033[38;5;208manticrash\033[0;00m"
+echo -e "4 => \033[38;5;208mTrun Off Robot's\033[0;00m"
+echo -e "5 => \033[38;5;208mServer informathion\033[0;00m"
+echo -e "0 => \033[38;5;208mExit Menu\033[0;00m"
 echo -e "\033[38;5;208m  ➖  ➖  ➖➖➖➖➖➖  ➖  ➖  ➖  \033[0;00m"
 echo '>Channel : '"@tgMember"
 echo '>Develop by '"@sajjad_021"
-# Options in ./config.sh <option>
+# Options in ./TG <option>
 read VAR
 if [ "$VAR" = 1 ]; then
   clear
-  logo
+	logo
   install
   menu
 elif [ "$VAR" = 2 ]; then
-	cr
-	exit
+  update
+	log
+	menu
 elif [ "$VAR" = 3 ]; then
- 	log
 	anticrash
+	  echo All tgAdvertising is Running!
+	exit
+	log
 	menu
 elif [ "$VAR" = 4 ]; then
+	killall screen
+	killall tmux
+	killall screen
+	killall tmux
 	killall telegram-cli
-	tmux kill-session -t $THIS_DIR
+	sudo service redis-server restart
 	log
 	echo -e '\e[34mSessions closed\e[0m'
 	menu
 elif [ "$VAR" = 5 ]; then
-	tmux attach-session -t $THIS_DIR
-elif [ "$VAR" = 6 ]; then
-  log
 	inf
 	menu
-elif [ "$VAR" = 7 ]; then
-cln
-menu
 elif [ "$VAR" = 0 ]; then
 	clear
 	log
@@ -233,51 +221,45 @@ elif [ "$VAR" = "" ]; then
 fi
 }
 
-if [ "$1" ]; then   
-   id="${1/a/}"
-    if [ -a "$THIS_DIR"/TG-"$id".lua ]; then
-      screen -x -s TG-"$id" quit
-      while true ; do
-        screen -s TG-"$id" ./telegram-cli -p TG-"$id" -s TG-"$id".lua
-        sleep 10
-      done
-			fi
-     if [ -a "$THIS_DIR"/TG-"$1".lua ]; then
-      ./telegram-cli -p TG-"$1" -s TG-"$1".lua
-    else
-    menu
-   fi
-fi
-
-if [ "$1" = "info" ]; then
-  clear
-	log
-	inf
-fi
-
-if [ "$1" = "tmux" ]; then
-	log
-  anticrash
-fi
-
-if [ "$1" = "cr" ]; then
+if [ "$1" ]; then
+	if [ "$1" = "install" ]; then
+		install
+	elif [ "$1" = "update" ]; then
+		update
+	elif 
+		[ "$1" = "tmux" ]; then
+	  log
+    anticrash
+	elif 
+		[ "$1" = "info" ]; then
+    clear
+	  log
+	  inf
+else
   log
-  cr
+	if [[ "$1" =~ ^[0-9]+$ ]] ; then
+			if [ ! -f ./.tg/telegram.h ]; then
+				echo "tg not found"
+				echo "Run $0 install"
+				exit 1
+			fi
+			if [ ! -f ./.tg/bin/telegram-cli ]; then
+				echo "tg binary not found"
+				echo "Run $0 install"
+				exit 1
+			fi
+			cr $1
+			COUNTER=0
+        while [ $COUNTER -lt 5 ]; do
+			    rm -r /.telegram-cli/AdsBot$1/state
+			    screen -S nohup ./.tg/bin/telegram-cli -k ./.tg/tg-server.pub -s ./TG-$1.lua -E -c ./.telegram-cli/AdsBot$1/AdsBot.cfg "$@"
+				sleep 1
+			done
+		else
+			menu
+		fi
+	fi
+else
+  log
+	menu
 fi
-
-if [ "$1" = "help" ]; then
-menu
-fi
-
-if [ ! -f telegram-cli ]; then
-    echo -e "\033[38;5;208mError! telegram-cli not found, Please reply to this message:\033[1;208m"
-    read -p "Do you want to install and config? [y/n] = "
-	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
-        install
-				menu
-    elif [ "$REPLY" == "n" ] || [ "$REPLY" == "N" ]; then
-        exit 1
-  fi
-fi
-
-menu
