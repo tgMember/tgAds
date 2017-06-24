@@ -1,4 +1,4 @@
-# tgAdvertising
+# TeleGram Advertising
 
 New tabchi api
 will not be delete account.\
