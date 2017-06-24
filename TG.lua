@@ -3,9 +3,8 @@ package.cpath = package.cpath..';.luarocks/lib/lua/5.2/?.so'
 
 redis = require'redis'
 redis = redis.connect('127.0.0.1', 6379)
-SUDO = 000000000 --put your telegram user id here
-require'config'
 redis:select(0)
+SUDO = 000000000 --put your telegram user id here
 
 function ok_cb(extra, success, result)
 end
