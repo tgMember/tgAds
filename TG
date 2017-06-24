@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 THIS_DIR=$(cd $(dirname $0); pwd)
 cd $THIS_DIR
@@ -249,11 +249,9 @@ else
 				exit 1
 			fi
 			cr $1
-			COUNTER=0
-        while [ $COUNTER -lt 5 ]; do
+                         while true; do
 			    rm -r /.telegram-cli/AdsBot$1/state
-			    screen -S nohup ./.tg/bin/telegram-cli -k ./.tg/tg-server.pub -s ./TG-$1.lua -E -c ./.telegram-cli/AdsBot$1/AdsBot.cfg "$@"
-				sleep 1
+			     ./.tg/bin/telegram-cli -k ./.tg/tg-server.pub -s ./TG-$1.lua -E -c ./.telegram-cli/AdsBot$1/AdsBot.cfg "$@"
 			done
 		else
 			menu
