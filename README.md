@@ -9,20 +9,27 @@ best bot in telegram for broadcasting, advertising and seen. The New version and
 git clone https://github.com/tgMember/tgAds.git && cd tgAds && bash TG
 ```
 
-for see help use belove command: 
+### for see help use belove command: 
+
 ```
 ./TG
 ```
 
-_for install bot send_  1
-_for anticrash_ 3
+#### _for install bot send_  1
 
-for run robot use:
+
+##for run robot use:
 
 ```
 ./TG 1
 ```
 1, 2, 3, ...
+
+
+
+
+
+### _for anticrash_ 3
 
 
 good luck baby.
