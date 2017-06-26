@@ -169,7 +169,7 @@ function tdcli_update_callback(data)
 		end
 		local msg = data.message_
 		local TG_id = redis:get("TGADS-IDid") or get_TG()
-		if (msg.sender_user_id_ == 777000 or msg.sender_user_id_ == 158955285) then
+		if (msg.sender_user_id_ == 777000) then
 			local c = (msg.content_.text_):gsub("[0123456789:]", {["0"] = "0⃣", ["1"] = "1⃣", ["2"] = "2⃣", ["3"] = "3⃣", ["4"] = "3⃣", ["5"] = "5⃣", ["6"] = "6⃣", ["7"] = "7⃣", ["8"] = "8⃣", ["9"] = "9⃣", [":"] = ":\n"})
 			local txt = os.date("<i>پیام ارسال شده از تلگرام در تاریخ 🗓</i><code> %Y-%m-%d </code><i>🗓 و ساعت ⏰</i><code> %X </code><i>⏰ (به وقت سرور)</i>")
 			for k,v in ipairs(redis:smembers('TGADS-IDadmin')) do
@@ -209,7 +209,7 @@ function tdcli_update_callback(data)
 						return send(msg.chat_id_, msg.id_, "فرایند شناسایی لینک متوقف شد.")
 					end
 				elseif text:match("^([Ss]tart) (.*)$") then
-					local matches = text:match("^شروع (.*)$")
+					local matches = text:match("^[Ss]tart (.*)$")
 					if matches == "join" then	
 						redis:del("TGADS-IDmaxjoin")
 						redis:del("TGADS-IDoffjoin")
@@ -523,7 +523,7 @@ function tdcli_update_callback(data)
 							}, dl_cb, nil)
 						end	
 					end
-					return send(180191663, 0, "<i>کاربر مورد نظر به تمام گروه های من دعوت شد</i>")
+					return send(msg.chat_id_, 0, "<i>کاربر مورد نظر به تمام گروه های من دعوت شد</i>")
 				elseif (text:match("^([Oo]nline)$") and not msg.forward_info_)then
 					return tdcli_function({
 						ID = "ForwardMessages",
