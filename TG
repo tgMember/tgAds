@@ -64,14 +64,26 @@ echo -e "\e[38;5;099minstall telegram-cli\e"
     chmod +x telegram-cli
 		chmod +x TG
 }
-  
+
+py() {
+sudo apt-get install python-setuptools python-dev build-essential -y 
+sudo easy_install pip 
+sudo pip install redis
+}
+
 install2() {
 echo -e "\e[38;5;034mInstalling more dependencies\e"
-    sudo apt-get install screen -y
-    sudo apt-get install tmux -y
-		sudo apt-get --force-yes install git wget screen tmux libconfig9 libevent-dev libjansson4 libstdc++6 lua-socket lua5.2 liblua5.2 make unzip redis-server software-properties-common g++
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-    sudo apt-get install -y gcc-4.9 g++-4.9
+		sudo apt-get --force-yes install git wget screen tmux libconfig9 libevent-dev libjansson4 libstdc++6 lua-socket lua5.2 liblua5.2 make unzip redis-server software-properties-common g++
+ 		sudo apt-get install g++-4.7 -y c++-4.7 -y
+		sudo apt-get update
+		sudo apt-get upgrade
+		sudo apt-get install libreadline-dev -y libconfig-dev -y libssl-dev -y lua5.2 -y liblua5.2-dev -y lua-socket -y lua-sec -y lua-expat -y libevent-dev -y make unzip git redis-server autoconf g++ -y libjansson-dev -y libpython-dev -y expat libexpat1-dev -y
+		sudo apt-get install screen -y
+		sudo apt-get install tmux -y
+		sudo apt-get install libstdc++6 -y
+		sudo apt-get install lua-lgi -y
+		sudo apt-get install libnotify-dev -y
     sudo update-alternatives —install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 —slave /usr/bin/g++ g++ /usr/bin/g++-4.9
 }
 
@@ -100,6 +112,7 @@ sudo apt install -y traktor
 install2
 install_luarocks
 install_rocks
+py
 tg
 sudo apt-get -y update
 sudo apt-get -y upgrade
@@ -146,7 +159,7 @@ cln()  {
 }
 
 cr() {
- name=TG
+  name=TG
   if [[ -e $name.lua ]] ; then
       i=1
       while [[ -e $name-$i.lua ]] ; do
@@ -154,27 +167,38 @@ cr() {
       done
       name=$name-$i
   fi
-  cat TG.lua >> "$name".lua
+  cat main.lua >> "$name".lua
   sed -i 's/ADS-ID/'$i'/g' "$name".lua
-echo "new TG seccessfuly created
-       TG number "$i"
-      run your tg Advertising by :"
-echo "
-       ./TG "$i"
-"
-./TG "$i"
+  echo "#!/bin/bash 
+COUNTER=0
+while [  \$COUNTER -lt 5 ]; do
+kill \$(pgrep telegram-cli)
+  ./telegram-cli -p TG-"$i" -s TG-"$i".lua
+ sleep 1
+done" >> "TG-"$i".sh"
+    printf "ربات با موفقیت ساخته شد برای اجرا از دستور زیر استفاده کنید :                                                          "
+printf "./TG-"$i".sh"
+chmod +x TG-"$i".sh
 }
 
 anticrash() {
-  while true ; do
-	for tgAdvertising in TG-*.lua ; do
-			tgAds="${tgAdvertising%.*}"
-			num="${tgAds/TG-/}"
-			tmux kill-session -t tgAds-"$num"
-			TMUX= tmux new-session -d -s tgAds-"$num" "bash TG $num"
-			tmux detach -s tgAds-"$num"
-		done
-  echo All TG Advertising is Running!
+while true ; do
+  for entr in TG-*.sh ; do
+    entry="${entr/.sh/}"
+    tmux kill-session -t $entry
+    rm -rf ~/.telegram-cli/$entry/data/animation/*
+    rm -rf ~/.telegram-cli/$entry/data/audio/*
+    rm -rf ~/.telegram-cli/$entry/data/document/*
+    rm -rf ~/.telegram-cli/$entry/data/photo/*
+    rm -rf ~/.telegram-cli/$entry/data/sticker/*
+    rm -rf ~/.telegram-cli/$entry/data/temp/*
+    rm -rf ~/.telegram-cli/$entry/data/video/*
+    rm -rf ~/.telegram-cli/$entry/data/voice/*
+    rm -rf ~/.telegram-cli/$entry/data/profile_photo/*
+    tmux new-session -d -s $entry "./$entr"
+    tmux detach -s $entry
+  done
+  echo All tgAds is Running!
   sleep 1800
 done
 }
