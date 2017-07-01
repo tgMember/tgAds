@@ -163,7 +163,7 @@ kill \$(pgrep telegram-cli)
   ./telegram-cli -p TG-"$i" -s TG-"$i".lua
  sleep 1
 done" >> "TG-"$i".sh"
-echo -e "New bot Created, you can run your bot with\033[38;5;208m./TG-"$i".sh\033[1;208mcommand"
+echo -e "New bot Created, you can run your bot with\033[38;5;208m./TG-"$i".sh\033[0;0mcommand"
 chmod +x TG-"$i".sh
     read -p "Do you want launch your robot? [y/n] = "
 	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
