@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 THIS_DIR=$(cd $(dirname $0); pwd)
 cd $THIS_DIR
@@ -62,13 +62,7 @@ echo -e "\e[38;5;099minstall telegram-cli\e"
     wget https://valtman.name/files/telegram-cli-1121
     mv telegram-cli-1121 telegram-cli
     chmod +x telegram-cli
-		chmod +x TG
-}
-
-py() {
-sudo apt-get install python-setuptools python-dev build-essential -y 
-sudo easy_install pip 
-sudo pip install redis
+    chmod 777 TG
 }
 
 install2() {
@@ -93,26 +87,20 @@ echo -e "\e[38;5;035mUpdating packages\e"
 	sudo apt-get upgrade -y
 
 echo -e "\\e[38;5;129mInstalling dependencies\e"
-sudo apt install tor -y
-sudo apt install -y obfs4proxy
+sudo add-apt-repository ppa:dani.behzi/traktor
+sudo apt update -y
+sudo apt install -y traktor
 sudo systemctl daemon-reload
 sudo systemctl restart tor.service
-sudo apt install obfsproxy -y
-sudo apt install polipo -y
-sudo systemctl restart tor.service
 sudo apt install -y polipo
-sudo apt install torsocks
+sudo apt install -y torsocks
 sudo apt install dnscrypt-proxy -y
 sudo systemctl daemon-reload
 sudo systemctl restart tor.service
 sudo cat /var/log/tor/log
-sudo add-apt-repository ppa:dani.behzi/traktor
-sudo apt update -y
-sudo apt install -y traktor
 install2
 install_luarocks
 install_rocks
-py
 tg
 sudo apt-get -y update
 sudo apt-get -y upgrade
@@ -120,7 +108,6 @@ sudo apt-get -y dist-upgrade
 sudo apt-get -y autoremove
 sudo apt autoclean
 sudo service redis-server restart
-sudo service redis-server start
 log
 echo -e "\e[38;5;046mInstalling packages successfully\033[0;00m"
 menu
@@ -176,9 +163,14 @@ kill \$(pgrep telegram-cli)
   ./telegram-cli -p TG-"$i" -s TG-"$i".lua
  sleep 1
 done" >> "TG-"$i".sh"
-    printf "ربات با موفقیت ساخته شد برای اجرا از دستور زیر استفاده کنید :                                                          "
-printf "./TG-"$i".sh"
+echo -e "New bot Created, you can run your bot with\033[38;5;208m./TG-"$i".sh\033[1;208mcommand"
 chmod +x TG-"$i".sh
+    read -p "Do you want launch your robot? [y/n] = "
+	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
+        ./TG-"$i".sh
+    elif [ "$REPLY" == "n" ] || [ "$REPLY" == "N" ]; then
+        exit 1
+  fi
 }
 
 anticrash() {
