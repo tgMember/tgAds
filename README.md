@@ -18,7 +18,7 @@ git clone https://github.com/tgMember/tgAds.git && cd tgAds && bash TG
 #### _y_  and  _enter_  keys
 
 
-### after install 
+### after install if get Error message, for config tor proxy reboot your sever and install again.
 
 
    - #### *Create New Robot*
