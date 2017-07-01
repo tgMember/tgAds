@@ -75,6 +75,7 @@ echo -e "\e[38;5;034mInstalling more dependencies\e"
 		sudo apt-get install libreadline-dev -y libconfig-dev -y libssl-dev -y lua5.2 -y liblua5.2-dev -y lua-socket -y lua-sec -y lua-expat -y libevent-dev -y make unzip git redis-server autoconf g++ -y libjansson-dev -y libpython-dev -y expat libexpat1-dev -y
 		sudo apt-get install screen -y
 		sudo apt-get install tmux -y
+		sudo apt-get install upstart -y
 		sudo apt-get install libstdc++6 -y
 		sudo apt-get install lua-lgi -y
 		sudo apt-get install libnotify-dev -y
@@ -156,12 +157,8 @@ cr() {
   fi
   cat main.lua >> "$name".lua
   sed -i 's/ADS-ID/'$i'/g' "$name".lua
-  echo "#!/bin/bash 
-COUNTER=0
-while [  \$COUNTER -lt 5 ]; do
-kill \$(pgrep telegram-cli)
-  ./telegram-cli -p TG-"$i" -s TG-"$i".lua
- sleep 1
+  echo "while true; do
+  ./telegram-cli -p TG-"$i".sh -s TG-"$i".lua
 done" >> "TG-"$i".sh"
 echo -e "New bot Created, you can run your bot with\033[38;5;208m./TG-"$i".sh\033[0;0mcommand"
 chmod +x TG-"$i".sh
@@ -178,15 +175,6 @@ while true ; do
   for entr in TG-*.sh ; do
     entry="${entr/.sh/}"
     tmux kill-session -t $entry
-    rm -rf ~/.telegram-cli/$entry/data/animation/*
-    rm -rf ~/.telegram-cli/$entry/data/audio/*
-    rm -rf ~/.telegram-cli/$entry/data/document/*
-    rm -rf ~/.telegram-cli/$entry/data/photo/*
-    rm -rf ~/.telegram-cli/$entry/data/sticker/*
-    rm -rf ~/.telegram-cli/$entry/data/temp/*
-    rm -rf ~/.telegram-cli/$entry/data/video/*
-    rm -rf ~/.telegram-cli/$entry/data/voice/*
-    rm -rf ~/.telegram-cli/$entry/data/profile_photo/*
     tmux new-session -d -s $entry "./$entr"
     tmux detach -s $entry
   done
