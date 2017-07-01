@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 THIS_DIR=$(cd $(dirname $0); pwd)
 cd $THIS_DIR
@@ -59,10 +59,16 @@ install_rocks() {
   
 tg() {
 echo -e "\e[38;5;099minstall telegram-cli\e"
-    wget https://valtman.name/files/telegram-cli-1124
-    mv telegram-cli-1124 telegram-cli
-    chmod 777 telegram-cli
-    chmod 777 TG
+    wget https://valtman.name/files/telegram-cli-1121
+    mv telegram-cli-1121 telegram-cli
+    chmod +x telegram-cli
+		chmod +x TG
+}
+
+py() {
+sudo apt-get install python-setuptools python-dev build-essential -y 
+sudo easy_install pip 
+sudo pip install redis
 }
 
 install2() {
@@ -75,7 +81,6 @@ echo -e "\e[38;5;034mInstalling more dependencies\e"
 		sudo apt-get install libreadline-dev -y libconfig-dev -y libssl-dev -y lua5.2 -y liblua5.2-dev -y lua-socket -y lua-sec -y lua-expat -y libevent-dev -y make unzip git redis-server autoconf g++ -y libjansson-dev -y libpython-dev -y expat libexpat1-dev -y
 		sudo apt-get install screen -y
 		sudo apt-get install tmux -y
-		sudo apt-get install upstart -y
 		sudo apt-get install libstdc++6 -y
 		sudo apt-get install lua-lgi -y
 		sudo apt-get install libnotify-dev -y
@@ -88,20 +93,26 @@ echo -e "\e[38;5;035mUpdating packages\e"
 	sudo apt-get upgrade -y
 
 echo -e "\\e[38;5;129mInstalling dependencies\e"
-sudo add-apt-repository ppa:dani.behzi/traktor
-sudo apt update -y
-sudo apt install -y traktor
+sudo apt install tor -y
+sudo apt install -y obfs4proxy
 sudo systemctl daemon-reload
 sudo systemctl restart tor.service
+sudo apt install obfsproxy -y
+sudo apt install polipo -y
+sudo systemctl restart tor.service
 sudo apt install -y polipo
-sudo apt install -y torsocks
+sudo apt install torsocks
 sudo apt install dnscrypt-proxy -y
 sudo systemctl daemon-reload
 sudo systemctl restart tor.service
 sudo cat /var/log/tor/log
+sudo add-apt-repository ppa:dani.behzi/traktor
+sudo apt update -y
+sudo apt install -y traktor
 install2
 install_luarocks
 install_rocks
+py
 tg
 sudo apt-get -y update
 sudo apt-get -y upgrade
@@ -109,6 +120,7 @@ sudo apt-get -y dist-upgrade
 sudo apt-get -y autoremove
 sudo apt autoclean
 sudo service redis-server restart
+sudo service redis-server start
 log
 echo -e "\e[38;5;046mInstalling packages successfully\033[0;00m"
 menu
@@ -157,14 +169,10 @@ cr() {
   fi
   cat main.lua >> "$name".lua
   sed -i 's/ADS-ID/'$i'/g' "$name".lua
-  echo "while true; do
-  ./telegram-cli -p TG-"$i".sh -s TG-"$i".lua
-done" >> "TG-"$i".sh"
-echo -e "New bot Created, you can run your bot with\033[38;5;208m./TG-"$i".sh\033[0;0mcommand"
-chmod +x TG-"$i".sh
+ echo -e "New bot Created, you can run your bot with\033[38;5;208m./TG "$i"\033[0;0mcommand"
     read -p "Do you want launch your robot? [y/n] = "
 	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
-        ./TG-"$i".sh
+        ./TG "$i"
     elif [ "$REPLY" == "n" ] || [ "$REPLY" == "N" ]; then
         exit 1
   fi
@@ -172,15 +180,16 @@ chmod +x TG-"$i".sh
 
 anticrash() {
 while true ; do
-  for entr in TG-*.sh ; do
-    entry="${entr/.sh/}"
-    tmux kill-session -t $entry
-    tmux new-session -d -s $entry "./$entr"
-    tmux detach -s $entry
-  done
-  echo All tgAds is Running!
-  sleep 1800
-done
+    for tgAds in TG-*.lua ; do
+      entr="${tgAds%.*}"
+      entry="${entr/TG-/}"
+      tmux kill-session -t entr-"$entry"
+      tmux new-session -d -s entr-"$entry" "./TG $entry"
+      tmux detach -s entr-"$entry"
+    done
+    echo -e "\n\e[1;32mRun All tgAds Bot\n\e[0;00m"
+    sleep 1200
+  done 
 }
 
 menu() {
@@ -238,16 +247,12 @@ elif [ "$VAR" = "" ]; then
 fi
 }
 
-if [ "$1" ]; then   
-   id="${1/a/}"
-    if [ -a "$THIS_DIR"/TG-"$id".lua ]; then
-      screen -x -s TG-"$id" quit
-      while true ; do
-        screen -s TG-"$id" ./telegram-cli -p TG-"$id" -s TG-"$id".lua
-        sleep 10
-      done
-			fi
-     if [ -a "$THIS_DIR"/TG-"$1".lua ]; then
+if [ "$1" ]; then
+id="${1/a/}"
+     if [ -a "$THIS_DIR"/TG-"$id".lua ]; then
+		   ./telegram-cli -p TG-"$id" -s TG-"$id".lua
+	 fi
+   if [[ "$1" =~ ^[0-9]+$ ]] ; then
       ./telegram-cli -p TG-"$1" -s TG-"$1".lua
     else
     menu
@@ -284,5 +289,4 @@ if [ ! -f telegram-cli ]; then
         exit 1
   fi
 fi
-
 menu
