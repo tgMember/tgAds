@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 THIS_DIR=$(cd $(dirname $0); pwd)
 cd $THIS_DIR
@@ -35,7 +35,7 @@ log() {
   echo -e "\033[38;5;129m||  \|_-|        |, |\,|\,   -____-  |, |\,|\,   _--_-'    -____- _---_-|.\033[0;00m"
          echo -e "\033[38;5;129m||   -_-_\033[0;00m"
             echo -e "\033[38;5;129m,_-_-\.\033[0;00m"
- }
+}
 
 install_luarocks() {
  echo -e "\e[38;5;142mInstalling LuaRocks\e"
@@ -52,77 +52,67 @@ cd ..
 }
 
 install_rocks() {
-   ./.luarocks/bin/luarocks install redis-lua
-    sudo service redis-server restart
-    sudo service redis-server start
-}
-  
-tg() {
-echo -e "\e[38;5;099minstall telegram-cli\e"
-    wget https://valtman.name/files/telegram-cli-1121
-    mv telegram-cli-1121 telegram-cli
-    chmod +x telegram-cli
-		chmod +x TG
+     sudo ./.luarocks/bin/luarocks install socket
+		 sudo ./.luarocks/bin/luarocks install dkjson
+		 sudo ./.luarocks/bin/luarocks install lbase64
+		 sudo ./.luarocks/bin/luarocks install luasec
+		 sudo ./.luarocks/bin/luarocks install serpent
+		 sudo ./.luarocks/bin/luarocks install redis-lua
 }
 
-py() {
-sudo apt-get install python-setuptools python-dev build-essential -y 
-sudo easy_install pip 
-sudo pip install redis
+tg() {
+wget https://valtman.name/files/telegram-cli-1215
+mv telegram-cli-1215 telegram-cli
+chmod 777 telegram-cli
 }
 
 install2() {
-echo -e "\e[38;5;034mInstalling more dependencies\e"
-    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-		sudo apt-get --force-yes install git wget screen tmux libconfig9 libevent-dev libjansson4 libstdc++6 lua-socket lua5.2 liblua5.2 make unzip redis-server software-properties-common g++
- 		sudo apt-get install g++-4.7 -y c++-4.7 -y
-		sudo apt-get update
-		sudo apt-get upgrade
-		sudo apt-get install libreadline-dev -y libconfig-dev -y libssl-dev -y lua5.2 -y liblua5.2-dev -y lua-socket -y lua-sec -y lua-expat -y libevent-dev -y make unzip git redis-server autoconf g++ -y libjansson-dev -y libpython-dev -y expat libexpat1-dev -y
-		sudo apt-get install screen -y
-		sudo apt-get install tmux -y
-		sudo apt-get install libstdc++6 -y
-		sudo apt-get install lua-lgi -y
-		sudo apt-get install libnotify-dev -y
-    sudo update-alternatives —install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 —slave /usr/bin/g++ g++ /usr/bin/g++-4.9
+  echo -e "\e[38;5;034mInstalling more dependencies\e"
+	sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+	apt-get --force-yes install git wget screen tmux libconfig9 libevent-dev libjansson4 libstdc++6 lua-socket lua5.2 liblua5.2 make unzip redis-server software-properties-common g++
+	apt install g++-4.7 -y c++-4.7 -y
+	apt update
+	apt upgrade
+	sudo apt-get install libreadline-dev -y libconfig-dev -y libssl-dev -y lua5.2 -y liblua5.2-dev -y lua-socket -y lua-sec -y lua-expat -y libevent-dev -y make unzip git redis-server autoconf g++ -y libjansson-dev -y libpython-dev -y expat libexpat1-dev -y
+	apt install screen -y
+	apt install tmux -y
+	apt install libstdc++6 -y
+	apt install lua-lgi -y
+	apt install -y redis-server
+	apt install -y luarocks
+	apt install libnotify-dev -y
+	update-alternatives —install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 —slave /usr/bin/g++ g++ /usr/bin/g++-4.9
 }
 
 install() {
-echo -e "\e[38;5;035mUpdating packages\e"
-  sudo apt-get update -y
-	sudo apt-get upgrade -y
-
-echo -e "\\e[38;5;129mInstalling dependencies\e"
-sudo apt install tor -y
-sudo apt install -y obfs4proxy
-sudo systemctl daemon-reload
-sudo systemctl restart tor.service
-sudo apt install obfsproxy -y
-sudo apt install polipo -y
-sudo systemctl restart tor.service
-sudo apt install -y polipo
-sudo apt install torsocks
-sudo apt install dnscrypt-proxy -y
-sudo systemctl daemon-reload
-sudo systemctl restart tor.service
-sudo cat /var/log/tor/log
-sudo add-apt-repository ppa:dani.behzi/traktor
-sudo apt update -y
-sudo apt install -y traktor
-install2
-install_luarocks
-install_rocks
-py
-tg
-sudo apt-get -y update
-sudo apt-get -y upgrade
-sudo apt-get -y dist-upgrade
-sudo apt-get -y autoremove
-sudo apt autoclean
-sudo service redis-server restart
-sudo service redis-server start
+ echo -e "\e[38;5;035mUpdating packages\e"
+    chmod 777 TG
+	  sudo apt update -y && apt upgrade -y
+  echo -e "\\e[38;5;129mInstalling dependencies\e"
+	  sudo apt install -y torsocks
+	  sudo systemctl daemon-reload
+	  sudo systemctl restart tor.service
+	  sudo apt install -y tor
+	  sudo systemctl daemon-reload
+	  sudo systemctl restart tor.service
+	  sudo apt install -y polipo
+	  sudo systemctl daemon-reload
+	  sudo systemctl restart tor.service
+	  systemctl start tor.service
+	  cat /var/log/tor/log
+	install2
+	install_luarocks
+	install_rocks
+	tg
+	apt -y update
+	apt -y upgrade
+	apt -y dist-upgrade
+	apt -y autoremove
+	apt autoclean
+	service redis-server restart
+	service redis-server start
 log
-echo -e "\e[38;5;046mInstalling packages successfully\033[0;00m"
+  echo -e "\e[38;5;046mInstalling packages successfully\033[0;00m"
 menu
 }
 
@@ -150,7 +140,7 @@ echo '>Server Uptime : '"$uptime"
 
 cln()  {
  sudo service redis-server start
- echo ">> Enter the ADS-ID,that you wanna delete :"
+echo ">> Enter the ADS-ID,that you wanna delete :"
   read -rp ' ' ID
   rm -rf ~/.telegram-cli/TG-"$ID"/data
   rm -rf TG-"$ID".lua
@@ -172,40 +162,25 @@ cr() {
  echo -e "New bot Created, you can run your bot with\033[38;5;208m./TG "$i"\033[0;0mcommand"
     read -p "Do you want launch your robot? [y/n] = "
 	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
-        ./TG "$i"
+         ./TG "$i"
     elif [ "$REPLY" == "n" ] || [ "$REPLY" == "N" ]; then
         exit 1
   fi
-}
-
-anticrash() {
-while true ; do
-    for tgAds in TG-*.lua ; do
-      entr="${tgAds%.*}"
-      entry="${entr/TG-/}"
-      tmux kill-session -t entr-"$entry"
-      tmux new-session -d -s entr-"$entry" "./TG $entry"
-      tmux detach -s entr-"$entry"
-    done
-    echo -e "\n\e[1;32mRun All tgAds Bot\n\e[0;00m"
-    sleep 1200
-  done 
 }
 
 menu() {
 echo -e "➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\033[38;5;208mMENU\033[0;00m➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖"
 echo -e "1 => \033[38;5;208mInstall\033[0;00m"
 echo -e "2 => \033[38;5;208mNew bot\033[0;00m"
-echo -e "3 => \033[38;5;208manticrash - Trun On All Robot's\033[0;00m"
-echo -e "4 => \033[38;5;208mTrun Off All Robot's\033[0;00m"
-echo -e "5 => \033[38;5;208mReturn last session\033[0;00m"
-echo -e "6 => \033[38;5;208mServer info\033[0;00m"
-echo -e "7 => \033[38;5;208mRemove bot\033[0;00m"
+echo -e "3 => \033[38;5;208mTrun Off All Robot's\033[0;00m"
+echo -e "4 => \033[38;5;208mReturn last session\033[0;00m"
+echo -e "5 => \033[38;5;208mServer info\033[0;00m"
+echo -e "6 => \033[38;5;208mRemove bot\033[0;00m"
 echo -e "0 => \033[38;5;208mExit\033[0;00m"
 echo -e "\033[38;5;208m  ➖  ➖  ➖➖➖➖➖➖  ➖  ➖  ➖  \033[0;00m"
 echo '>Channel : '"@tgMember"
 echo '>Develop by '"@sajjad_021"
-# Options in ./config.sh <option>
+# Options in ./TG <option>
 read VAR
 if [ "$VAR" = 1 ]; then
   clear
@@ -214,24 +189,25 @@ if [ "$VAR" = 1 ]; then
   menu
 elif [ "$VAR" = 2 ]; then
 	cr
-	exit
 elif [ "$VAR" = 3 ]; then
  	log
-	anticrash
-	menu
-elif [ "$VAR" = 4 ]; then
+  killall tmux
+	killall screen
+	killall telegram-cli
+	killall screen
+	killall tmux
 	killall telegram-cli
 	tmux kill-session -t $THIS_DIR
 	log
 	echo -e '\e[34mSessions closed\e[0m'
 	menu
-elif [ "$VAR" = 5 ]; then
+elif [ "$VAR" = 4 ]; then
 	tmux attach-session -t $THIS_DIR
-elif [ "$VAR" = 6 ]; then
+elif [ "$VAR" = 5 ]; then
   log
 	inf
 	menu
-elif [ "$VAR" = 7 ]; then
+elif [ "$VAR" = 6 ]; then
 cln
 menu
 elif [ "$VAR" = 0 ]; then
@@ -250,10 +226,20 @@ fi
 if [ "$1" ]; then
 id="${1/a/}"
      if [ -a "$THIS_DIR"/TG-"$id".lua ]; then
-		   ./telegram-cli -p TG-"$id" -s TG-"$id".lua
-	 fi
+	 while true; do
+		  tmux kill-session -t ~/TG-"$id"
+      tmux new-session -s ~/TG-"$id" "./
+		   ./telegram-cli -p TG-"$id" -s TG-"$id".lua"
+      tmux detach -s ~/TG-"$id"
+		done
+			fi
    if [[ "$1" =~ ^[0-9]+$ ]] ; then
-      ./telegram-cli -p TG-"$1" -s TG-"$1".lua
+		 while true; do
+		  tmux kill-session -t ~/TG-"$id"
+      tmux new-session -s ~/TG-"$id" "./
+		   ./telegram-cli -p TG-"$id" -s TG-"$id".lua"
+      tmux detach -s ~/TG-"$id"
+		done
     else
     menu
    fi
@@ -263,16 +249,6 @@ if [ "$1" = "info" ]; then
   clear
 	log
 	inf
-fi
-
-if [ "$1" = "tmux" ]; then
-	log
-  anticrash
-fi
-
-if [ "$1" = "cr" ]; then
-  log
-  cr
 fi
 
 if [ "$1" = "help" ]; then
