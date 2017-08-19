@@ -9,7 +9,3 @@ function dl_cb(arg, data)
 end
 
 require('TG')
-
-function tdcli_update_callback(data)
-	Doing(data, Ads_id)
-end
