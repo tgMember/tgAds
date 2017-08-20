@@ -6,16 +6,11 @@ cd $THIS_DIR
 luarocks_version=2.4.2
 
 lualibs=(
-'https://luarocks.org/luasec-0.6-1.rockspec'
 'luasec'
-'lbase64 20120807-3'
-'luafilesystem'
+'https://luarocks.org/luasec-0.6-1.rockspec'
 'lub'
 'luaexpat'
 'redis-lua'
-'lua-cjson'
-'fakeredis'
-'xml'
 'serpent'
 )
 
@@ -63,8 +58,8 @@ printf "\e[0;00m\n"
 }
 
 is() {
-	sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; sudo apt-get autoclean; sudo apt-get update
-  sudo apt-get install git redis-server libconfig8-dev libjansson-dev lua5.2 liblua5.2-dev lua-lgi glib-2.0 libnotify-dev libssl-dev libssl1.0.0 make libstdc++6 g++-4.9 unzip libreadline-gplv2-dev libreadline5-dev tmux -y
+	sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; sudo apt-get -y upgrade; sudo apt-get -y update
+  sudo apt-get install git redis-server libreadline-dev -y libconfig-dev -y lua-socket -y lua-sec -y lua-expat -y libevent-dev -y libconfig8-dev libjansson-dev lua5.2 liblua5.2-dev lua-lgi glib-2.0 libnotify-dev libssl-dev libssl1.0.0 make libstdc++6 g++-4.9 unzip autoconf g++ -y libpython-dev -y expat libexpat1-dev -y libreadline-gplv2-dev libreadline5-dev tmux -y
 }
 
 get_firstname_by_username() {
@@ -95,7 +90,7 @@ function download_libs_lua() {
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
         printf "\rtgAds: wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
-        ./.luarocks/bin/luarocks install ${lualibs[$i]} &>> .logs/logluarocks_${today}.txt
+        sudo ./.luarocks/bin/luarocks install ${lualibs[$i]} &>> .logs/logluarocks_${today}.txt
     done
     sleep 0.2
     printf "\nLogfile created: $PWD/.logs/logluarocks_${today}.txt\nDone\n"
@@ -146,6 +141,7 @@ install() {
 logo
 is
 configure
+sudo apt -u update && sudo apt -y upgrade && sudo apt -y autoclean && sudo apt -y autoremove
 clear
 logo
  echo -e "\033[38;5;034mSuccessful install\033[0;00m\n\n\n"
