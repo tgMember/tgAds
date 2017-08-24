@@ -8,8 +8,6 @@ luarocks_version=2.4.2
 lualibs=(
 'luasec'
 'https://luarocks.org/luasec-0.6-1.rockspec'
-'lub'
-'luaexpat'
 'redis-lua'
 'serpent'
 )
@@ -112,9 +110,9 @@ function configure() {
     cd ..; rm -rf luarocks*
     if [[ ${1} != "--no-download" ]]; then
         download_libs_lua
-        wget --progress=bar:force https://valtman.name/files/telegram-cli-1214
+        wget --progress=bar:force https://valtman.name/files/telegram-cli-1014
         if [ ! -d ".bin" ]; then mkdir .bin; fi
-        mv telegram-cli-1214 ./.bin/telegram-cli; chmod +x ./.bin/telegram-cli
+        mv telegram-cli-1014 ./.bin/telegram-cli; chmod +x ./.bin/telegram-cli
     fi
     for ((i=0;i<101;i++)); do
         printf "\rConfiguring... [%i%%]" $i
@@ -151,7 +149,7 @@ logo
  echo -e "for example: screen -S nohup ./TG 7\n\n"
 }
 
-	if [[ "$1" =~ ^[0-9]+$ ]] ; then
+if [[ "$1" =~ ^[0-9]+$ ]] ; then
 	conf $1
 COUNTER=0
   while [ $COUNTER -lt 5 ]; do
