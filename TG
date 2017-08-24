@@ -61,7 +61,7 @@ is() {
 }
 
 get_firstname_by_username() {
-	user=`./.bin/telegram-cli --disable-link-preview -C -R -D -e \
+	user=`./.telegram-cli/telegram-cli --disable-link-preview -C -R -D -e \
 	'resolve_username '${1}'' 2>/dev/null`
     space_index=`echo ${user} | tr -cd ' '  | wc -c`
 	msg=null
@@ -88,7 +88,7 @@ function download_libs_lua() {
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
         printf "\rtgAds: wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
-        sudo ./.luarocks/bin/luarocks install ${lualibs[$i]} &>> .logs/logluarocks_${today}.txt
+        sudo ./.luarocks.telegram-cli/luarocks install ${lualibs[$i]} &>> .logs/logluarocks_${today}.txt
     done
     sleep 0.2
     printf "\nLogfile created: $PWD/.logs/logluarocks_${today}.txt\nDone\n"
@@ -111,8 +111,8 @@ function configure() {
     if [[ ${1} != "--no-download" ]]; then
         download_libs_lua
         wget --progress=bar:force https://valtman.name/files/telegram-cli-1014
-        if [ ! -d ".bin" ]; then mkdir .bin; fi
-        mv telegram-cli-1014 ./.bin/telegram-cli; chmod +x ./.bin/telegram-cli
+        if [ ! -d ".telegram-cli" ]; then mkdir .telegram-cli; fi
+        mv telegram-cli-1014 ./.telegram-cli/telegram-cli; chmod +x ./.telegram-cli/telegram-cli
     fi
     for ((i=0;i<101;i++)); do
         printf "\rConfiguring... [%i%%]" $i
@@ -122,23 +122,28 @@ function configure() {
 }
 
 conf() {
-	mkdir -p "$THIS_DIR"/.bin/TG"$1"
-	cfg="$THIS_DIR"/.bin/TG$1/TG.cfg
-	TG="$THIS_DIR"/.bin/TG-$1.lua
+	mkdir -p "$THIS_DIR"/.telegram-cli/TG-"$1"
+	cfg="$THIS_DIR"/.telegram-cli/TG-$1/TG.cfg
+	TG="$THIS_DIR"/.telegram-cli/TG-$1.lua
 	if [[ ! -f $cfg ]]; then
-		echo "default_profile = \"TG$1\";TG$1 = {config_directory = \"$THIS_DIR/.bin/TG$1\";test = false;msg_num = true;};" >> $cfg
+		echo "default_profile = \"TG-$1\";TG-$1 = {config_directory = \"$THIS_DIR/.telegram-cli/TG-$1\";test = false;msg_num = true;};" >> $cfg
 	fi
 	if [[ ! -f $TG ]]; then
 		cat main.lua >> TG-$1.lua
 		sed -i 's/ADS-ID/'$1'/g' TG-$1.lua
-		mv TG-$1.lua ./.bin
+		mv TG-$1.lua ./.telegram-cli
 	fi
 }
 
 install() {
+rm -rf README.md
 logo
+echo -e "\n\n\033[38;5;034mInstall pkg\n\n033[0;00m"
 is
+echo -e "\n\n\033[38;5;034mDownload and installing luarocks & tg\n\n033[5;123m"
 configure
+echo -e "\n\n\033[38;5;034mInstall Complete. Update pkg\n\n033[0;00m"
+rm -rf .logs
 sudo apt -u update && sudo apt -y upgrade && sudo apt -y autoclean && sudo apt -y autoremove
 clear
 logo
@@ -153,14 +158,14 @@ if [[ "$1" =~ ^[0-9]+$ ]] ; then
 	conf $1
 COUNTER=0
   while [ $COUNTER -lt 5 ]; do
-       tmux kill-session -t TG$1
-	        tmux new-session -s TG$1 "./.bin/telegram-cli -s ./.bin/TG-$1.lua -E -c ./.bin/TG$1/TG.cfg "$@""
-        tmux detach -s TG$1
+       tmux kill-session -t TG-$1
+	        tmux new-session -s TG-$1 "./.telegram-cli/telegram-cli  -p ./.telegram-cli/TG-$1/TG.cfg -s ./.telegram-cli/TG-$1.lua"
+        tmux detach -s TG-$1
     sleep 1
   done
 	fi
 	
-if [ ! -f "./.bin/telegram-cli" ]; then
+if [ ! -f "./.telegram-cli/telegram-cli" ]; then
     echo -e "\033[38;5;208mError! telegram-cli not found, Please reply to this message:\033[0;00m"
     read -p "Do you want to install and config? [y/n] = "
 	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
