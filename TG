@@ -1,0 +1,177 @@
+#!/bin/bash
+
+THIS_DIR=$(cd $(dirname $0); pwd)
+cd $THIS_DIR
+
+luarocks_version=2.4.2
+
+lualibs=(
+'luasec'
+'https://luarocks.org/luasec-0.6-1.rockspec'
+'redis-lua'
+'serpent'
+)
+
+today=`date +%F`
+
+get_sub() {
+    local flag=false c count cr=$'\r' nl=$'\n'
+    while IFS='' read -d '' -rn 1 c; do
+        if $flag; then
+            printf '%c' "$c"
+        else
+            if [[ $c != $cr && $c != $nl ]]; then
+                count=0
+            else
+                ((count++))
+                if ((count > 1)); then
+                    flag=true
+                fi
+            fi
+        fi
+    done
+}
+
+function logo() {
+    declare -A logo
+    seconds="0.004"
+logo[0]="  .          '||    ||' '||'''|  '||    ||' '||'|.  '||'''|  '||''|."
+logo[1]=".||.   ... .  |||  |||   || .     |||  |||   ||  ||  || .     ||   ||"
+logo[2]=" ||   || ||   |'|..'||   ||'|     |'|..'||   ||''|.  ||'|     ||''|'"
+logo[3]=" ||    |''    | '|' ||   ||       | '|' ||   ||   || ||       ||   |."
+logo[4]=" '|.' '|||.  .|. | .||. .||....| .|. | .||. .||..|' .||....| .||.  '|'"
+logo[5]="    .|...'"
+logo[6]="➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖"
+logo[7]="Channel : @tgMember"
+logo[8]="Develop by @sajjad_021"
+printf "\e[38;5;213m\t"
+    for i in ${!logo[@]}; do
+        for x in `seq 0 ${#logo[$i]}`; do
+            printf "${logo[$i]:$x:1}"
+            sleep $seconds
+        done
+        printf "\n\t"
+    done
+printf "\e[0;00m\n"
+}
+
+is() {
+	sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; sudo apt-get -y upgrade; sudo apt-get -y update
+  sudo apt-get install git redis-server libreadline-dev -y libconfig-dev -y lua-socket -y lua-sec -y lua-expat -y libevent-dev -y libconfig8-dev libjansson-dev lua5.2 liblua5.2-dev lua-lgi glib-2.0 libnotify-dev libssl-dev libssl1.0.0 make libstdc++6 g++-4.9 unzip autoconf g++ -y libpython-dev -y expat libexpat1-dev -y libreadline-gplv2-dev libreadline5-dev tmux -y
+}
+
+get_firstname_by_username() {
+	user=`./.telegram-cli/telegram-cli --disable-link-preview -C -R -D -e \
+	'resolve_username '${1}'' 2>/dev/null`
+    space_index=`echo ${user} | tr -cd ' '  | wc -c`
+	msg=null
+	if [[ ! ${user} ]] || [[ ${user} =~ 400 ]]; then
+		echo $msg
+	else
+		msg=`echo ${user} | cut -d ' ' -f${space_index}- | cut -d ' ' -f1`
+		echo "${msg}"
+	fi
+}
+
+make_progress() {
+exe=`lua <<-EOF
+    print(tonumber($1)/tonumber($2)*100)
+EOF
+`
+    echo ${exe:0:4}
+}
+
+function download_libs_lua() {
+    if [[ ! -d ".logs" ]]; then mkdir .logs; fi
+    if [[ -f ".logs/logluarocks_${today}.txt" ]]; then rm .logs/logluarocks_${today}.txt; fi
+    local i
+    for ((i=0;i<${#lualibs[@]};i++)); do
+        printf "\r\33[2K"
+        printf "\rtgAds: wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
+        sudo ./.luarocks.telegram-cli/luarocks install ${lualibs[$i]} &>> .logs/logluarocks_${today}.txt
+    done
+    sleep 0.2
+    printf "\nLogfile created: $PWD/.logs/logluarocks_${today}.txt\nDone\n"
+    rm -rf luarocks-2.2.2*
+}
+
+function configure() {
+    dir=$PWD
+    wget http://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz &>/dev/null
+    tar zxpf luarocks-${luarocks_version}.tar.gz &>/dev/null
+    cd luarocks-${luarocks_version}
+    if [[ ${1} == "--no-null" ]]; then
+        ./configure --prefix=$dir/.luarocks --sysconfdir=$dir/.luarocks/luarocks --force-config
+        make bootstrap
+    else
+        ./configure --prefix=$dir/.luarocks --sysconfdir=$dir/.luarocks/luarocks --force-config &>/dev/null
+        make bootstrap &>/dev/null
+    fi
+    cd ..; rm -rf luarocks*
+    if [[ ${1} != "--no-download" ]]; then
+        download_libs_lua
+        wget --progress=bar:force https://valtman.name/files/telegram-cli-1124
+        if [ ! -d ".telegram-cli" ]; then mkdir .telegram-cli; fi
+        mv telegram-cli-1124 ./.telegram-cli/telegram-cli; chmod +x ./.telegram-cli/telegram-cli
+    fi
+    for ((i=0;i<101;i++)); do
+        printf "\rConfiguring... [%i%%]" $i
+        sleep 0.007
+    done
+    printf "\nDone\n"
+}
+
+conf() {
+	mkdir -p "$THIS_DIR"/.telegram-cli/TG-"$1"
+	cfg="$THIS_DIR"/.telegram-cli/TG-$1/TG.cfg
+	TG="$THIS_DIR"/.telegram-cli/TG-$1.lua
+	if [[ ! -f $cfg ]]; then
+		echo "default_profile = \"TG-$1\";TG-$1 = {config_directory = \"$THIS_DIR/.telegram-cli/TG-$1\";test = false;msg_num = true;};" >> $cfg
+	fi
+	if [[ ! -f $TG ]]; then
+		cat main.lua >> TG-$1.lua
+		sed -i 's/ADS-ID/'$1'/g' TG-$1.lua
+		mv TG-$1.lua ./.telegram-cli
+	fi
+}
+
+install() {
+rm -rf README.md
+logo
+echo -e "\n\n\033[38;5;034mInstall pkg\n\n033[0;00m"
+is
+echo -e "\n\n\033[38;5;034mDownload and installing luarocks & tg\n\n033[5;123m"
+configure
+echo -e "\n\n\033[38;5;034mInstall Complete. Update pkg\n\n033[0;00m"
+rm -rf .logs
+sudo apt -u update && sudo apt -y upgrade && sudo apt -y autoclean && sudo apt -y autoremove
+clear
+chmod 777 TG
+logo
+ echo -e "\033[38;5;034mSuccessful install\033[0;00m\n\n\n"
+ echo -e "Now, you can run your bot by => \033[38;5;123m./TG 1~9\033[0;00m <= command"
+ echo -e "for example: ./TG 1\n\n"
+ echo -e "you can use anticrash by => \033[38;5;142mscreen -S nohup ./TG 1~9\033[0;00m <= command"
+ echo -e "for example: screen -S nohup ./TG 7\n\n"
+}
+
+if [[ "$1" =~ ^[0-9]+$ ]] ; then
+	conf $1
+COUNTER=0
+  while [ $COUNTER -lt 5 ]; do
+       tmux kill-session -t TG-$1
+	        tmux new-session -s TG-$1 "./.telegram-cli/telegram-cli  -p ./.telegram-cli/TG-$1/TG.cfg -s ./.telegram-cli/TG-$1.lua"
+        tmux detach -s TG-$1
+    sleep 1
+  done
+	fi
+	
+if [ ! -f "./.telegram-cli/telegram-cli" ]; then
+    echo -e "\033[38;5;208mError! telegram-cli not found, Please reply to this message:\033[0;00m"
+    read -p "Do you want to install and config? [y/n] = "
+	if [ "$REPLY" == "y" ] || [ "$REPLY" == "Y" ]; then
+					install
+     elif [ "$REPLY" == "n" ] || [ "$REPLY" == "N" ]; then
+        exit 1
+  fi
+fi
