@@ -26,6 +26,10 @@ printf "\e[38;5;213m\t"
 printf "\n"
 }
 
+update() {
+git fetch --all && git reset --hard origin/master && git pull origin master && chmod +x TG
+}
+
 install_luarocks() {
  echo -e "\e[38;5;142mInstalling LuaRocks\e"
   git clone https://github.com/keplerproject/luarocks.git
@@ -134,7 +138,12 @@ COUNTER=0
     sleep 1
   done
 	fi
-	
+
+if [ "$1" = "update" ]; then
+update
+install
+fi
+
 if [ ! -f "./.telegram-cli/telegram-cli" ]; then
     echo -e "\033[38;5;208mError! telegram-cli not found, Please reply to this message:\033[0;00m"
     read -p "Do you want to install and config? [y/n] = "
