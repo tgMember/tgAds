@@ -105,7 +105,7 @@ if [[ "$1" =~ ^[0-9]+$ ]] ; then
 COUNTER=0
   while [ $COUNTER -lt 5 ]; do
        tmux kill-session -t TG-$1
-	        tmux new-session -s TG-$1 "./.bin/telegram-cli -pc ./.bin/TG-$1/TG.cfg -WRCIvs ./.bin/TG-$1.lua -P 1080 --accept-any-tcp --permanent-msg-ids -l 1 -E $@"
+	        tmux new-session -s TG-$1 "./.bin/telegram-cli -pc ./.bin/TG-$1/TG.cfg -WRCIvs ./.bin/TG-$1.lua -P 1080 --accept-any-tcp --permanent-msg-ids --json -l 1 -E $@"
         tmux detach -s TG-$1
     sleep 1
   done
