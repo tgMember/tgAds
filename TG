@@ -26,17 +26,6 @@ printf "\e[38;5;213m\t"
 printf "\n"
 }
 
-log() {
-  echo -e "\033[38;5;105m .               /|\,/ |\,  ,- _~,   /\|,/ \|,   - _,,     ,- _~,  -_ /\,\033[0;00m"
-  echo -e "\033[38;5;142m||    _          /| || ||   (' /| /  /| || ||     -/  )   (' /| /   || ,,\033[0;00m"
-  echo -e "\033[38;5;099m=||=  / \\        || || ||  ((  ||/=  || || ||    ~||_<   ((  || =  /|| /|.\033[0;00m"
-  echo -e "\033[38;5;034m||  || ||        ||=|= ||  ((  ||    ||=|= ||     || |\  (( |||    \||/-\,\033[0;00m"
-  echo -e "\033[38;5;406m||  || ||       ~|| || ||   ( / |   ~|| || ||     ,/--||  (   |     ||  \.,\033[0;00m"
-  echo -e "\033[38;5;129m||  \|_-|        |, |\,|\,   -____-  |, |\,|\,   _--_-'    -____- _---_-|.\033[0;00m"
-         echo -e "\033[38;5;129m||   -_-_\033[0;00m"
-            echo -e "\033[38;5;129m,_-_-\.\033[0;00m"
-}
-
 install_luarocks() {
  echo -e "\e[38;5;142mInstalling LuaRocks\e"
   git clone https://github.com/keplerproject/luarocks.git
@@ -52,12 +41,13 @@ cd ..
 }
 
 install_rocks() {
-     sudo ./.luarocks/bin/luarocks install socket
-		 sudo ./.luarocks/bin/luarocks install dkjson
-		 sudo ./.luarocks/bin/luarocks install lbase64
-		 sudo ./.luarocks/bin/luarocks install luasec
-		 sudo ./.luarocks/bin/luarocks install serpent
-		 sudo ./.luarocks/bin/luarocks install redis-lua
+ sudo ./.luarocks/bin/luarocks install socket
+ sudo ./.luarocks/bin/luarocks install dkjson
+ sudo ./.luarocks/bin/luarocks install lbase64
+ sudo ./.luarocks/bin/luarocks install luasec
+ sudo ./.luarocks/bin/luarocks install serpent
+ sudo ./.luarocks/bin/luarocks install redis-lua
+ sudo ./.luarocks/bin/luarocks install https://luarocks.org/luasec-0.6-1.rockspec
 }
 
 tg() {
