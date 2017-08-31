@@ -26,46 +26,98 @@ printf "\e[38;5;213m\t"
 printf "\n"
 }
 
-update() {
-git fetch --all && git reset --hard origin/master && git pull origin master && chmod +x TG
-}
-
-inspkg() {
-	instll="git redis-server libreadline-dev libconfig-dev lua-socket lua-sec lua-expat libevent-dev libconfig8-dev libjansson-dev lua5.2 liblua5.2-dev lua-lgi glib-2.0 libnotify-dev libssl-dev libssl1.0.0 make libstdc++6 g++-4.9 unzip autoconf g++ libpython-dev expat libexpat1-dev libreadline-gplv2-dev libreadline5-dev tmux g++-4.7 c++-4.7 torsocks tor polipo upstart screen wget"
-   for libs in $instll; do
-       sudo apt-get install -y $libs
-    done
+log() {
+  echo -e "\033[38;5;105m .               /|\,/ |\,  ,- _~,   /\|,/ \|,   - _,,     ,- _~,  -_ /\,\033[0;00m"
+  echo -e "\033[38;5;142m||    _          /| || ||   (' /| /  /| || ||     -/  )   (' /| /   || ,,\033[0;00m"
+  echo -e "\033[38;5;099m=||=  / \\        || || ||  ((  ||/=  || || ||    ~||_<   ((  || =  /|| /|.\033[0;00m"
+  echo -e "\033[38;5;034m||  || ||        ||=|= ||  ((  ||    ||=|= ||     || |\  (( |||    \||/-\,\033[0;00m"
+  echo -e "\033[38;5;406m||  || ||       ~|| || ||   ( / |   ~|| || ||     ,/--||  (   |     ||  \.,\033[0;00m"
+  echo -e "\033[38;5;129m||  \|_-|        |, |\,|\,   -____-  |, |\,|\,   _--_-'    -____- _---_-|.\033[0;00m"
+         echo -e "\033[38;5;129m||   -_-_\033[0;00m"
+            echo -e "\033[38;5;129m,_-_-\.\033[0;00m"
 }
 
 install_luarocks() {
  echo -e "\e[38;5;142mInstalling LuaRocks\e"
-  git clone https://github.com/luarocks/luarocks.git
+  git clone https://github.com/keplerproject/luarocks.git
   cd luarocks
   git checkout tags/v2.4.2 # Current stable
 
-  PREFIX="../.luarocks"
+  PREFIX="$THIS_DIR/.luarocks"
 
-  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/.luarocks --force-config
+  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/luarocks --force-config
    make build && make install
-   make bootstrap
 cd ..
   rm -rf luarocks
 }
 
 install_rocks() {
-echo -e "\e[38;5;105mInstall rocks service\e"
-luarocks install https://luarocks.org/luasec-0.6-1.rockspec
-luarocks install socket
-luarocks install dkjson
-luarocks install lbase64
-luarocks install luasec
-luarocks install serpent
-luarocks install redis-lua
+     sudo ./.luarocks/bin/luarocks install socket
+		 sudo ./.luarocks/bin/luarocks install dkjson
+		 sudo ./.luarocks/bin/luarocks install lbase64
+		 sudo ./.luarocks/bin/luarocks install luasec
+		 sudo ./.luarocks/bin/luarocks install serpent
+		 sudo ./.luarocks/bin/luarocks install redis-lua
 }
 
 tg() {
-  wget --progress=bar:force https://valtman.name/files/telegram-cli-1215
-  mv telegram-cli-1215 telegram-cli; chmod +x telegram-cli
+wget https://valtman.name/files/telegram-cli-1215
+mv telegram-cli-1215 telegram-cli
+chmod 777 telegram-cli
+}
+
+install2() {
+  echo -e "\e[38;5;034mInstalling more dependencies\e"
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+sudo apt-get --force-yes install git wget screen tmux libconfig9 libevent-dev libjansson4 libstdc++6 lua-socket lua5.2 liblua5.2 make unzip redis-server software-properties-common g++
+sudo apt install g++-4.7 -y c++-4.7 -y
+sudo apt -y update
+sudo apt -y upgrade
+sudo apt-get install libreadline-dev -y libconfig-dev -y libssl-dev -y lua5.2 -y liblua5.2-dev -y lua-socket -y lua-sec -y lua-expat -y libevent-dev -y make unzip git redis-server autoconf g++ -y libjansson-dev -y libpython-dev -y expat libexpat1-dev -y
+sudo apt install screen -y
+sudo apt install tmux -y
+sudo apt install libstdc++6 -y
+sudo apt install lua-lgi -y
+sudo apt install -y redis-server
+sudo apt install -y luarocks
+sudo apt install libnotify-dev -y
+sudo update-alternatives —install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 —slave /usr/bin/g++ g++ /usr/bin/g++-4.9
+}
+
+install() {
+ echo -e "\e[38;5;035mUpdating packages\e"
+    chmod 777 TG
+  sudo apt update -y && apt upgrade -y
+ echo -e "\\e[38;5;129mInstalling dependencies\e"
+  sudo apt install -y torsocks
+  sudo systemctl daemon-reload
+  sudo systemctl restart tor.service
+  sudo apt install -y tor
+  sudo systemctl daemon-reload
+  sudo systemctl restart tor.service
+  sudo apt install -y polipo
+  sudo systemctl daemon-reload
+  sudo systemctl restart tor.service
+  systemctl start tor.service
+  cat /var/log/tor/log
+  rm -rf README.md
+install2
+install_luarocks
+install_rocks
+tg
+sudo apt -y update
+sudo apt -y upgrade
+sudo apt -y dist-upgrade
+sudo apt -y autoremove
+sudo apt autoclean
+service redis-server restart
+service redis-server start
+logo
+ echo -e "\033[38;5;034m\nSuccessful install\033[0;00m\n"
+ echo -e "\n\nNow, you can run your bot by => \033[38;5;123m./TG 1~9\033[0;00m <= command"
+ echo -e "for example: ./TG 1\n\n"
+ echo -e "\n\nyou can use anticrash by => \033[38;5;142mscreen -S nohup ./TG 1~9\033[0;00m <= command"
+ echo -e "for example: screen -S nohup ./TG 7\n\n"
 }
 
 conf() {
@@ -80,32 +132,6 @@ conf() {
 		sed -i 's/ADS-ID/'$1'/g' TG-$1.lua
 		mv TG-$1.lua ./.bin
 	fi
-}
-
-install() {
-logo
-rm -rf README.md
-echo -e "\e[38;5;035mUpdating packages\e"
-   sudo apt-get update -y
-   sudo apt-get upgrade -y
-	sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-	chmod 777 TG
-inspkg
-sudo apt remove -y lua5.3
-install_luarocks
-  echo -e "\e[38;5;034mDownload libs\e"
-install_rocks
-tg
- sudo apt-get update -y
- sudo apt-get upgrade -y
- sudo apt-get autoremove -y
- sudo apt-get autoclean -y
-logo
- echo -e "\033[38;5;034m\nSuccessful install\033[0;00m\n"
- echo -e "\n\nNow, you can run your bot by => \033[38;5;123m./TG 1~9\033[0;00m <= command"
- echo -e "for example: ./TG 1\n\n"
- echo -e "\n\nyou can use anticrash by => \033[38;5;142mscreen -S nohup ./TG 1~9\033[0;00m <= command"
- echo -e "for example: screen -S nohup ./TG 7\n\n"
 }
 
 if [[ "$1" =~ ^[0-9]+$ ]] ; then
