@@ -45,13 +45,13 @@ cd ..
 }
 
 install_rocks() {
- sudo ./.luarocks/bin/luarocks install socket
- sudo ./.luarocks/bin/luarocks install dkjson
- sudo ./.luarocks/bin/luarocks install lbase64
- sudo ./.luarocks/bin/luarocks install luasec
- sudo ./.luarocks/bin/luarocks install serpent
- sudo ./.luarocks/bin/luarocks install redis-lua
- sudo ./.luarocks/bin/luarocks install https://luarocks.org/luasec-0.6-1.rockspec
+luarocks install socket
+luarocks install dkjson
+luarocks install lbase64
+luarocks install luasec
+luarocks install serpent
+luarocks install redis-lua
+luarocks install https://luarocks.org/luasec-0.6-1.rockspec
 }
 
 tg() {
