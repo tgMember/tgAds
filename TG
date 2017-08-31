@@ -26,6 +26,10 @@ printf "\e[38;5;213m\t"
 printf "\n"
 }
 
+update() {
+git fetch --all && git reset --hard origin/master && git pull origin master && chmod +x TG
+}
+
 install_luarocks() {
  echo -e "\e[38;5;142mInstalling LuaRocks\e"
   git clone https://github.com/keplerproject/luarocks.git
