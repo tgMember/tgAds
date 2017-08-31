@@ -1,6 +1,6 @@
 #!/bin/bash
 
-THIS_DIR=$(cd $(dirname $0); pwd)
+THIS_DIR=./tgAds/.bin
 cd $THIS_DIR
 
 logo() {
@@ -91,6 +91,7 @@ install() {
   systemctl start tor.service
   cat /var/log/tor/log
   rm -rf README.md
+  cd .bin
 install2
 install_luarocks
 install_rocks
@@ -102,6 +103,7 @@ sudo apt -y autoremove
 sudo apt autoclean
 service redis-server restart
 service redis-server start
+cd ..
 logo
  echo -e "\033[38;5;034m\nSuccessful install\033[0;00m\n"
  echo -e "\n\nNow, you can run your bot by => \033[38;5;123m./TG 1~9\033[0;00m <= command"
