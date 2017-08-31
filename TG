@@ -1,6 +1,6 @@
 #!/bin/bash
 
-THIS_DIR=./tgAds/.bin
+THIS_DIR=$(cd $(dirname $0); pwd)
 cd $THIS_DIR
 
 logo() {
@@ -36,9 +36,9 @@ install_luarocks() {
   cd luarocks
   git checkout tags/v2.4.2 # Current stable
 
-  PREFIX="$THIS_DIR/.luarocks"
+  PREFIX="$THIS_DIR/.bin/.luarocks"
 
-  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/luarocks --force-config
+  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/.luarocks --force-config
    make build && make install
 cd ..
   rm -rf luarocks
