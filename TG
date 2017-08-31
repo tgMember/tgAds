@@ -31,7 +31,7 @@ git fetch --all && git reset --hard origin/master && git pull origin master && c
 }
 
 inspkg() {
-	instll="libgcc-4.7-dev gcc-4.7-locales gcc-4.7 gcc-4.7-base gcc-4.7-multilib git redis-server libreadline-dev libconfig-dev lua-socket lua-sec lua-expat libevent-dev libconfig8-dev libjansson-dev lua5.2 liblua5.2-dev lua-lgi glib-2.0 libnotify-dev libssl-dev libssl1.0.0 make libstdc++6 g++-4.9 unzip autoconf g++ libpython-dev expat libexpat1-dev libreadline-gplv2-dev libreadline5-dev tmux g++-4.7 c++-4.7 torsocks tor polipo upstart screen wget"
+	instll="git redis-server libreadline-dev libconfig-dev lua-socket lua-sec lua-expat libevent-dev libconfig8-dev libjansson-dev lua5.2 liblua5.2-dev lua-lgi glib-2.0 libnotify-dev libssl-dev libssl1.0.0 make libstdc++6 g++-4.9 unzip autoconf g++ libpython-dev expat libexpat1-dev libreadline-gplv2-dev libreadline5-dev tmux g++-4.7 c++-4.7 torsocks tor polipo upstart screen wget"
    for libs in $instll; do
        sudo apt-get install -y $libs
     done
@@ -39,24 +39,29 @@ inspkg() {
 
 install_luarocks() {
  echo -e "\e[38;5;142mInstalling LuaRocks\e"
-  git clone https://github.com/keplerproject/luarocks.git
+  git clone https://github.com/luarocks/luarocks.git -b 2.3.0
   cd luarocks
-  ./configure
+  git checkout tags/v2.4.2 # Current stable
+
+  PREFIX="$THIS_DIR/.luarocks"
+
+  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/luarocks --force-config
    make build && make install
 cd ..
+  rm -rf luarocks
 }
 
 install_rocks() {
 echo -e "\e[38;5;105mInstall rocks service\e"
-rocks="oauth ansicolors luasec tdcli https://luarocks.org/luasec-0.6-1.rockspec lub lua-term dkjson Lua-cURL multipart-post lanes xml fakeredis luaexpat lbase64 luafilesystem lua-cjson feedparser luasocket redis-lua serpent"
+rocks="luasec https://luarocks.org/luasec-0.6-1.rockspec dkjson lbase64 luafilesystem luasocket redis-lua serpent"
 	for rock in $rocks; do
-      sudo ./luarocks/src/bin/luarocks install $rock
+      sudo ./.luarocks/bin/luarocks install $rock
     done
 }
 
 tg() {
-  wget --progress=bar:force https://valtman.name/files/telegram-cli-1124
-  mv telegram-cli-1124 telegram-cli; chmod +x telegram-cli
+  wget --progress=bar:force https://valtman.name/files/telegram-cli-1215
+  mv telegram-cli-1215 telegram-cli; chmod +x telegram-cli
 }
 
 conf() {
@@ -83,6 +88,9 @@ echo -e "\e[38;5;035mUpdating packages\e"
 	chmod 777 TG
 cd .bin
 inspkg
+sudo apt remove -y lua5.1
+sudo apt remove -y lua5.3
+sudo apt install -y lua5.2
 install_luarocks
   echo -e "\e[38;5;034mDownload libs\e"
 install_rocks
