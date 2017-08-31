@@ -39,24 +39,28 @@ inspkg() {
 
 install_luarocks() {
  echo -e "\e[38;5;142mInstalling LuaRocks\e"
-  git clone https://github.com/luarocks/luarocks.git -b 2.3.0
+  git clone https://github.com/luarocks/luarocks.git
   cd luarocks
   git checkout tags/v2.4.2 # Current stable
 
-  PREFIX="$THIS_DIR/.luarocks"
+  PREFIX="../.luarocks"
 
-  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/luarocks --force-config
+  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/.luarocks --force-config
    make build && make install
+   make bootstrap
 cd ..
   rm -rf luarocks
 }
 
 install_rocks() {
 echo -e "\e[38;5;105mInstall rocks service\e"
-rocks="luasec https://luarocks.org/luasec-0.6-1.rockspec dkjson lbase64 luafilesystem luasocket redis-lua serpent"
-	for rock in $rocks; do
-      sudo ./.luarocks/bin/luarocks install $rock
-    done
+luarocks install https://luarocks.org/luasec-0.6-1.rockspec
+luarocks install socket
+luarocks install dkjson
+luarocks install lbase64
+luarocks install luasec
+luarocks install serpent
+luarocks install redis-lua
 }
 
 tg() {
@@ -86,16 +90,12 @@ echo -e "\e[38;5;035mUpdating packages\e"
    sudo apt-get upgrade -y
 	sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 	chmod 777 TG
-cd .bin
 inspkg
-sudo apt remove -y lua5.1
 sudo apt remove -y lua5.3
-sudo apt install -y lua5.2
 install_luarocks
   echo -e "\e[38;5;034mDownload libs\e"
 install_rocks
 tg
-cd ..
  sudo apt-get update -y
  sudo apt-get upgrade -y
  sudo apt-get autoremove -y
