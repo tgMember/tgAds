@@ -38,7 +38,7 @@ install_luarocks() {
 
   PREFIX="$THIS_DIR/.bin/.luarocks"
 
-  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/.luarocks --force-config
+  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/luarocks --force-config
    make build && make install
 cd ..
   rm -rf luarocks
