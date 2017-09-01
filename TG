@@ -26,88 +26,130 @@ printf "\e[38;5;213m\t"
 printf "\n"
 }
 
+tgcli_version=1215
+luarocks_version=2.4.2
+
 update() {
 git fetch --all && git reset --hard origin/master && git pull origin master && chmod +x TG
 }
 
-install_luarocks() {
- echo -e "\e[38;5;142mInstalling LuaRocks\e"
-  git clone https://github.com/keplerproject/luarocks.git
-  cd luarocks
-  git checkout tags/v2.4.2 # Current stable
+lualibs=(
+'luasec'
+'luarepl'
+'lbase64 20120807-3'
+'luafilesystem'
+'lub'
+'luaexpat'
+'redis-lua'
+'lua-cjson'
+'fakeredis'
+'xml'
+'feedparser'
+'serpent'
+)
 
-  PREFIX="$THIS_DIR/.bin/.luarocks"
+today=`date +%F`
 
-  ./configure --prefix=$PREFIX --sysconfdir=$PREFIX/luarocks --force-config
-   make build && make install
-cd ..
-  rm -rf luarocks
+get_sub() {
+    local flag=false c count cr=$'\r' nl=$'\n'
+    while IFS='' read -d '' -rn 1 c; do
+        if $flag; then
+            printf '%c' "$c"
+        else
+            if [[ $c != $cr && $c != $nl ]]; then
+                count=0
+            else
+                ((count++))
+                if ((count > 1)); then
+                    flag=true
+                fi
+            fi
+        fi
+    done
 }
 
-install_rocks() {
-luarocks install socket
-luarocks install dkjson
-luarocks install lbase64
-luarocks install luasec
-luarocks install serpent
-luarocks install redis-lua
-luarocks install https://luarocks.org/luasec-0.6-1.rockspec
+get_firstname_by_username() {
+	user=`./bin/telegram-cli --disable-link-preview -C -R -D -e \
+	'resolve_username '${1}'' 2>/dev/null`
+    space_index=`echo ${user} | tr -cd ' '  | wc -c`
+	msg=null
+	if [[ ! ${user} ]] || [[ ${user} =~ 400 ]]; then
+		echo $msg
+	else
+		msg=`echo ${user} | cut -d ' ' -f${space_index}- | cut -d ' ' -f1`
+		echo "${msg}"
+	fi
 }
 
-tg() {
-wget https://valtman.name/files/telegram-cli-1215
-mv telegram-cli-1215 telegram-cli
-chmod 777 telegram-cli
+make_progress() {
+exe=`lua <<-EOF
+    print(tonumber($1)/tonumber($2)*100)
+EOF
+`
+    echo ${exe:0:4}
 }
 
-install2() {
-  echo -e "\e[38;5;034mInstalling more dependencies\e"
-sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-sudo apt-get --force-yes install git wget screen tmux libconfig9 libevent-dev libjansson4 libstdc++6 lua-socket lua5.2 liblua5.2 make unzip redis-server software-properties-common g++
-sudo apt install g++-4.7 -y c++-4.7 -y
-sudo apt -y update
-sudo apt -y upgrade
-sudo apt-get install libreadline-dev -y libconfig-dev -y libssl-dev -y lua5.2 -y liblua5.2-dev -y lua-socket -y lua-sec -y lua-expat -y libevent-dev -y make unzip git redis-server autoconf g++ -y libjansson-dev -y libpython-dev -y expat libexpat1-dev -y
-sudo apt install screen -y
-sudo apt install tmux -y
-sudo apt install libstdc++6 -y
-sudo apt install lua-lgi -y
-sudo apt install -y redis-server
-sudo apt install -y luarocks
-sudo apt install libnotify-dev -y
-sudo update-alternatives —install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 —slave /usr/bin/g++ g++ /usr/bin/g++-4.9
+
+
+function download_libs_lua() {
+    if [[ ! -d "logs" ]]; then mkdir logs; fi
+    if [[ -f "logs/logluarocks_${today}.txt" ]]; then rm logs/logluarocks_${today}.txt; fi
+    local i
+    for ((i=0;i<${#lualibs[@]};i++)); do
+        printf "\r\33[2K"
+        printf "\rDBTeam: wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
+        ./.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
+    done
+    sleep 0.2
+    printf "\nLogfile created: $PWD/logs/logluarocks_${today}.txt\nDone\n"
+    rm -rf luarocks-2.2.2*
+}
+
+function update() {
+    git checkout launch.sh plugins/ lang/ bot/ libs/
+    git pull
+    echo chmod +x launch.sh | /bin/bash
+}
+
+function configure() {
+    if [[ -f "/usr/bin/lua5.3" ]] || [[ -f "/usr/bin/lua5.1" ]] || [[ -f "/usr/local/bin/lua5.3" ]]; then
+        echo -e "\033[0;31mError\033[0m":\
+        "DBTeam ins't working with lua5.3 and others versions, the packages must be removed,"\
+        "please remove them, reinstall lua5.2 and run launch.sh again."
+        exit 1
+    fi
+    dir=$PWD
+    wget http://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz &>/dev/null
+    tar zxpf luarocks-${luarocks_version}.tar.gz &>/dev/null
+    cd luarocks-${luarocks_version}
+    if [[ ${1} == "--no-null" ]]; then
+        ./configure --prefix=$dir/.luarocks --sysconfdir=$dir/.luarocks/luarocks --force-config
+        make bootstrap
+    else
+        ./configure --prefix=$dir/.luarocks --sysconfdir=$dir/.luarocks/luarocks --force-config &>/dev/null
+        make bootstrap &>/dev/null
+    fi
+    cd ..; rm -rf luarocks*
+    if [[ ${1} != "--no-download" ]]; then
+        download_libs_lua
+        wget --progress=bar:force https://valtman.name/files/telegram-cli-${tgcli_version} 2>&1 | get_sub
+        if [ ! -d ".bin" ]; then mkdir .bin; fi
+        mv telegram-cli-${tgcli_version} ./.bin/telegram-cli; chmod +x ./.bin/telegram-cli
+    fi
+    for ((i=0;i<101;i++)); do
+        printf "\rConfiguring... [%i%%]" $i
+        sleep 0.007
+    done
+    printf "\nDone\n"
 }
 
 install() {
- echo -e "\e[38;5;035mUpdating packages\e"
-    chmod 777 TG
-  sudo apt update -y && apt upgrade -y
- echo -e "\\e[38;5;129mInstalling dependencies\e"
-  sudo apt install -y torsocks
-  sudo systemctl daemon-reload
-  sudo systemctl restart tor.service
-  sudo apt install -y tor
-  sudo systemctl daemon-reload
-  sudo systemctl restart tor.service
-  sudo apt install -y polipo
-  sudo systemctl daemon-reload
-  sudo systemctl restart tor.service
-  systemctl start tor.service
-  cat /var/log/tor/log
-  rm -rf README.md
-  cd .bin
-install2
-install_luarocks
-install_rocks
-tg
-sudo apt -y update
-sudo apt -y upgrade
-sudo apt -y dist-upgrade
-sudo apt -y autoremove
-sudo apt autoclean
+logo
+configure ${2}
+rm -rf logs
 service redis-server restart
+rm -rf README.md
 service redis-server start
-cd ..
 logo
  echo -e "\033[38;5;034m\nSuccessful install\033[0;00m\n"
  echo -e "\n\nNow, you can run your bot by => \033[38;5;123m./TG 1~9\033[0;00m <= command"
@@ -117,16 +159,14 @@ logo
 }
 
 conf() {
-	mkdir -p "$THIS_DIR"/.bin/TG-"$1"
-	cfg="$THIS_DIR"/.bin/TG-$1/TG.cfg
+	cfg="$THIS_DIR"/.bin/TG-$1.cfg
 	TG="$THIS_DIR"/.bin/TG-$1.lua
-	if [[ ! -f $cfg ]]; then
-		echo "default_profile = \"TG-$1\";TG-$1 = {config_directory = \"$THIS_DIR/.bin/TG-$1\";test = false;msg_num = true;};" >> $cfg
+	if [[ ! -f TG-$1.cfg ]]; then
+		echo "default_profile = \"TG-$1\";TG-$1 = {config_directory = \"$HOME/.telegram-cli/TG-$1\";test = false;msg_num = true;};" >> $cfg
 	fi
 	if [[ ! -f $TG ]]; then
 		cat main.lua >> TG-$1.lua
 		sed -i 's/ADS-ID/'$1'/g' TG-$1.lua
-		mv TG-$1.lua ./.bin
 	fi
 }
 
@@ -135,7 +175,7 @@ if [[ "$1" =~ ^[0-9]+$ ]] ; then
 COUNTER=0
   while [ $COUNTER -lt 5 ]; do
        tmux kill-session -t TG-$1
-	        tmux new-session -s TG-$1 "./.bin/telegram-cli -pc ./.bin/TG-$1/TG.cfg -WRCIvs ./.bin/TG-$1.lua -P 1080 --accept-any-tcp --permanent-msg-ids --json -l 1 -E $@"
+	        tmux new-session -s TG-$1 "./.bin/telegram-cli -pc ./.bin/TG-$1.cfg -s TG-$1.lua -WIv -P 1080 --disable-link-preview -C -R -D -e --accept-any-tcp --permanent-msg-ids --json -l 1 -E $@"
         tmux detach -s TG-$1
     sleep 1
   done
@@ -146,9 +186,8 @@ update
 install
 fi
 
-if [ ! -d ".bin" ]; then
-		mkdir .bin
-		install
+if [ ! -f "./.bin/telegram-cli" ]; then
+      install
 	else
     echo -e "\033[38;5;208mThe tgAds robot installed.\033[0;00m"
     read -p "Do you want to upGrade? [y/n] = "
