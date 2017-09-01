@@ -97,11 +97,9 @@ function configure() {
     	sudo apt remove -y lua5.3
 	sudo apt -y autoremove
 	sudo apt install -y lua5.2
-      else
         echo -e "\033[0;31mError\033[0m":\
         "tgAds ins't working with lua5.3 and others versions, the packages must be removed,"\
-        "please remove them, reinstall lua5.2 and run launch.sh again."
-        exit 1 
+        "please remove them, reinstall lua5.2 and run \033[0;31mbash TG\033[0m again."
      fi
     dir=$PWD
     wget http://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz &>/dev/null
