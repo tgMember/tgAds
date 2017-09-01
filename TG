@@ -93,9 +93,7 @@ function update() {
 
 function configure() {
     if [[ -f "/usr/bin/lua5.3" ]] || [[ -f "/usr/bin/lua5.1" ]] || [[ -f "/usr/local/bin/lua5.3" ]]; then
-    	sudo apt -y update
 	sudo apt remove -y lua5.1
-	sudo apt -y upgrade
     	sudo apt remove -y lua5.3
 	sudo apt -y autoremove
 	sudo apt install -y lua5.2
@@ -131,6 +129,12 @@ function configure() {
 }
 
 install() {
+sudo apt -y update
+sudo apt remove -y lua5.1
+sudo apt remove -y lua5.3
+sudo apt -y autoremove
+sudo apt install -y lua5.2
+sudo apt -y autoclean
 chmod 777 TG
 logo
  echo -e "\033[38;5;034m\ninstall pkg\033[0;00m\n"
