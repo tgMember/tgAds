@@ -75,7 +75,7 @@ function download_libs_lua() {
     local i
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
-        printf "\tgAds: wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
+        printf "\rtgAds: wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
         ./.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
     done
     sleep 0.2
@@ -131,6 +131,7 @@ function configure() {
 }
 
 install() {
+chmod 777 TG
 logo
  echo -e "\033[38;5;034m\ninstall pkg\033[0;00m\n"
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y; sudo apt-get autoclean; sudo apt-get update
