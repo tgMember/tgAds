@@ -81,7 +81,7 @@ function update() {
   sudo git fetch --all
   sudo git reset --hard origin/master
   sudo git pull origin master
-  chmod +x TG
+  sudo chmod +x TG
 }
 
 function configure() {
