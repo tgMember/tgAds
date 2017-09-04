@@ -226,12 +226,11 @@ elif [ "$VAR" = 2 ]; then
 elif [ "$VAR" = 3 ]; then
         sudo killall tmux
 	sudo killall screen
-	sudi killall telegram-cli
+	sudo killall telegram-cli
 	sudo killall screen
 	sudo killall tmux
 	sudo killall telegram-cli
 	tmux kill-session -t $THIS_DIR
-	log
 	echo -e '\e[34mSessions closed\e[0m'
 	menu
 elif [ "$VAR" = 4 ]; then
