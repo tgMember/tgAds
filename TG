@@ -26,22 +26,11 @@ printf "\e[38;5;213m\t"
 printf "\n"
 }
 
-tgcli_version=1215
+tgcli_version=1214
 luarocks_version=2.4.2
 
 lualibs=(
-'luasec'
-'luarepl'
-'lbase64 20120807-3'
-'luafilesystem'
-'lub'
-'luaexpat'
 'redis-lua'
-'lua-cjson'
-'fakeredis'
-'xml'
-'dkjson'
-'feedparser'
 'serpent'
 )
 
@@ -283,7 +272,7 @@ if [[ "$1" =~ ^[0-9]+$ ]] ; then
 COUNTER=0
   while [ $COUNTER -lt 5 ]; do
        tmux kill-session -t TG-$1
-	        tmux new-session -s TG-$1 "./telegram-cli  -RC -v -L TG-$1.txt -p TG-$1 -s TG-$1.lua -I --disable-link-preview  --accept-any-tcp"
+	        tmux new-session -s TG-$1 "./telegram-cli  -RC -v -p TG-$1 -s TG-$1.lua -I -L log-$1.txt --disable-link-preview  --accept-any-tcp"
         tmux detach -s TG-$1
     sleep 1
   done
