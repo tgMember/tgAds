@@ -77,10 +77,10 @@ function download_libs_lua() {
 }
 
 function update() {
-  git pull
-  git fetch --all
-  git reset --hard origin/master
-  git pull origin master
+  sudo git pull
+  sudo git fetch --all
+  sudo git reset --hard origin/master
+  sudo git pull origin master
   chmod +x TG
 }
 
@@ -224,12 +224,12 @@ elif [ "$VAR" = 2 ]; then
  echo -e "\n\nyou can use anticrash by => \033[38;5;142mscreen -S nohup ./TG 1~9\033[0;00m <= command"
  echo -e "for example: screen -S nohup ./TG 7\n\n"
 elif [ "$VAR" = 3 ]; then
-       killall tmux
-	killall screen
-	killall telegram-cli
-	killall screen
-	killall tmux
-	killall telegram-cli
+        sudo killall tmux
+	sudo killall screen
+	sudi killall telegram-cli
+	sudo killall screen
+	sudo killall tmux
+	sudo killall telegram-cli
 	tmux kill-session -t $THIS_DIR
 	log
 	echo -e '\e[34mSessions closed\e[0m'
@@ -271,16 +271,15 @@ if [[ "$1" =~ ^[0-9]+$ ]] ; then
 	conf $1
 COUNTER=0
   while [ $COUNTER -lt 5 ]; do
-       tmux kill-session -t TG-$1
-	        tmux new-session -s TG-$1 "./telegram-cli  -RC -v -p TG-$1 -s TG-$1.lua -I -L log-$1.txt --disable-link-preview  --accept-any-tcp"
-        tmux detach -s TG-$1
+       sudo tmux kill-session -t TG-$1
+	        sudo tmux new-session -s TG-$1 "./telegram-cli  -RC -v -p TG-$1 -s TG-$1.lua -I -L log-$1.txt --disable-link-preview  --accept-any-tcp"
+        sudo tmux detach -s TG-$1
     sleep 1
   done
 fi
 
 if [ "$1" = "upgrade" ]; then
 update
-install
 fi
 
 if [ ! -f "telegram-cli" ]; then
