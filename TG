@@ -31,7 +31,6 @@ luarocks_version=2.4.2
 
 lualibs=(
 'redis-lua'
-'serpent'
 )
 
 today=`date +%F`
@@ -87,8 +86,6 @@ function update() {
 function configure() {
     if [[ -f "/usr/bin/lua5.3" ]] || [[ -f "/usr/bin/lua5.1" ]] || [[ -f "/usr/local/bin/lua5.3" ]]; then
     	sudo apt remove -y lua5.3
-	sudo apt -y autoremove
-	sudo apt install -y lua5.2
         echo -e "\033[0;31mplease wait...\033[0m\n"
      fi
     dir=$PWD
@@ -115,28 +112,16 @@ function configure() {
     printf "\nDone\n"
 }
 
-install2() {
-  echo -e "\e[38;5;034mInstalling more dependencies\e"
-  sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  sudo apt-get --force-yes install git wget screen tmux libconfig9 libevent-dev libjansson4 libstdc++6 lua-socket lua5.2 liblua5.2 make unzip redis-server software-properties-common g++
-  sudo apt install g++-4.7 -y c++-4.7 -y
-  sudo apt update
-  sudo apt upgrade
-  sudo apt-get install libreadline-dev -y libconfig-dev -y libssl-dev -y lua5.2 -y liblua5.2-dev -y lua-socket -y lua-sec -y lua-expat -y libevent-dev -y make unzip git redis-server autoconf g++ -y libjansson-dev -y libpython-dev -y expat libexpat1-dev -y
-  sudo apt install screen -y
-  sudo apt install tmux -y
-  sudo apt install libstdc++6 -y
-  sudo apt install lua-lgi -y
-  sudo apt install -y redis-server
-  sudo apt install -y luarocks
-  sudo apt install libnotify-dev -y
-  sudo update-alternatives —install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 —slave /usr/bin/g++ g++ /usr/bin/g++-4.9
-}
-
 install() {
+    sudo chmod 777 TG
+		  sudo apt update -y && apt upgrade -y
+  sudo apt-get install -f
+	sudo dpkg -a --configure
+	sudo apt-get dist-upgrade
+	sudo sudo apt-get dist-upgrade
  echo -e "\e\n[38;5;035mUpdating packages\e\n\n"
-    chmod 777 TG
-	  sudo apt update -y && apt upgrade -y
+		     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  sudo apt-get install c++ -y libreadline-dev -y libstdc++6 -y libnotify-dev -y libconfig-dev -y lua-lgi -y luarocks -y libssl-dev -y lua5.2 -y liblua5.2-dev -y libevent-dev -y libjansson-dev -y libpython-dev -y lua-socket -y lua-sec -y lua-expat -y make unzip git redis-server autoconf g++ -y expat libexpat1-dev -y
   echo -e "\\e[38;5;129mInstalling dependencies\e"
 	  sudo apt install -y torsocks
 	  sudo systemctl daemon-reload
@@ -147,17 +132,12 @@ install() {
 	  sudo apt install -y polipo
 	  sudo systemctl daemon-reload
 	  sudo systemctl restart tor.service
-	  systemctl start tor.service
-	  cat /var/log/tor/log
-   install2
-   rm -rf README.md
+	  sudo systemctl start tor.service
+	  sudo cat /var/log/tor/log
+rm -rf README.md	 
     configure ${2}
    rm -rf logs
-  sudo apt -y update
-  sudo apt -y upgrade
-  sudo apt -y dist-upgrade
   sudo apt -y autoremove
-  sudo apt autoclean
   sudo service redis-server restart
   sudo service redis-server start
  echo -e "\n\nNow, you can run your bot by => \033[38;5;123m./TG 1~9\033[0;00m <= command"
@@ -193,16 +173,17 @@ cln()  {
  sudo service redis-server start
 echo ">> Enter the ADS-ID,that you wanna delete :"
   read -rp ' ' ID
-  rm -rf ~/.telegram-cli/TG-"$ID"/data
-  rm -rf TG-"$ID".lua
-  redis-cli --raw keys "TG"$ID* | xargs redis-cli del
+  rm -rf ~/.telegram-cli/TG-"$ID"
+  rm -rf .TG-"$ID"
+  rm -rf AP-"$ID"
+  redis-cli --raw keys "tg:"-$ID* | xargs redis-cli del
   echo ">> Bot number '$ID' seccessfuly deleted."
 }
 
 menu() {
 echo -e "➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\033[38;5;208mMENU\033[0;00m➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖"
 echo -e "1 => \033[38;5;208mInstall\033[0;00m"
-echo -e "2 => \033[38;5;208mNew bot\033[0;00m"
+echo -e "2 => \033[38;5;208mUpgrade\033[0;00m"
 echo -e "3 => \033[38;5;208mTrun Off All Robot's\033[0;00m"
 echo -e "4 => \033[38;5;208mReturn last session\033[0;00m"
 echo -e "5 => \033[38;5;208mServer info\033[0;00m"
@@ -219,18 +200,13 @@ if [ "$VAR" = 1 ]; then
   install
   menu
 elif [ "$VAR" = 2 ]; then
- echo -e "\n\nNow, you can run your bot by => \033[38;5;123m./TG 1~9\033[0;00m <= command"
- echo -e "for example: ./TG 1\n\n"
- echo -e "\n\nyou can use anticrash by => \033[38;5;142mscreen -S nohup ./TG 1~9\033[0;00m <= command"
- echo -e "for example: screen -S nohup ./TG 7\n\n"
+ update
 elif [ "$VAR" = 3 ]; then
-        sudo killall tmux
 	sudo killall screen
+  sudo killall tmux
+	sudo service redis-server restart
+	sudo service redis-server start
 	sudo killall telegram-cli
-	sudo killall screen
-	sudo killall tmux
-	sudo killall telegram-cli
-	tmux kill-session -t $THIS_DIR
 	echo -e '\e[34mSessions closed\e[0m'
 	menu
 elif [ "$VAR" = 4 ]; then
@@ -258,22 +234,55 @@ if [ "$1" = "help" ]; then
 menu
 fi
 
-conf() {
-  TG="$THIS_DIR"/TG-$1.lua
-	if [[ ! -f $TG ]]; then
-		cat main.lua >> TG-$1.lua
-		sed -i 's/ADS-ID/'$1'/g' TG-$1.lua
+tgcli_config() {
+tgdr="$THIS_DIR"/.TG-$1
+if [ ! -d $tgdr ]; then
+  mkdir -p "$THIS_DIR"/.TG-$1
+  printf '%s\n' "
+default_profile = \"TG-$1\";
+TG-$1 = {
+  config_directory = \"$THIS_DIR/.TG-$1\";
+  auth_file = \"$THIS_DIR/.TG-$1/auth\";
+  test = false;
+  msg_num = true;
+  log_level = 2;
+};
+" > "$THIS_DIR"/.TG-$1/tg-cli.config
+fi
+}
+
+conf1() {
+  cli="$THIS_DIR"/.TG-$1/TG-$1.lua
+	if [[ ! -f "$THIS_DIR"/.TG-$1/"$cli" ]]; then
+		cat main.lua >> $cli
+		sed -i 's/ADS-ID/'$1'/g' $cli
 	fi
 }
 
-if [[ "$1" =~ ^[0-9]+$ ]] ; then
-	conf $1
-COUNTER=0
-  while [ $COUNTER -lt 5 ]; do
+conf3() {
+AP="$THIS_DIR"/AP-$1
+if [ ! -f $AP ]; then
+echo -e "\n\033[38;5;27mYou must enter the token to create API robot : \n\033[38;5;208m\n\033[6;48m\n"
+read -rp '' TKN
+    echo "#!/bin/bash
+	while true; do
+       sudo tmux kill-session -t AP-$1
+			tmux new-session -s AP-$1 "./telegram-cli -s ./.TG-$1/TG-$1.lua -p AP-$1 --bot=$TKN"
+        sudo tmux detach -s AP-$1
+	done" >> AP-$1
+	chmod 777 AP-$1
+	echo -e "\033[0;00m"
+fi
+}
+
+ if [[ "$1" =~ ^[0-9]+$ ]] ; then
+ 	tgcli_config $1
+	conf1 $1
+	conf3 $1
+  while true; do
        sudo tmux kill-session -t TG-$1
-	        sudo tmux new-session -s TG-$1 "./telegram-cli  -RC -v -p TG-$1 -s TG-$1.lua -I -L log-$1.txt --disable-link-preview  --accept-any-tcp"
+		sudo tmux new-session -s TG-$1 "./telegram-cli --disable-link-preview -R -C -v -s ./.TG-$1/TG-$1.lua -I -l 1 -E -c ./.TG-$1/tg-cli.config -p TG-$1 -L "$THIS_DIR"/.TG-$1/log.txt"
         sudo tmux detach -s TG-$1
-    sleep 1
   done
 fi
 
