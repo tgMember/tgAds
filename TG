@@ -1,7 +1,6 @@
 #!/bin/bash
 
 THIS_DIR=$(cd $(dirname $0); pwd)
-cd $THIS_DIR
 
 logo() {
     declare -A logo
@@ -83,12 +82,17 @@ function update() {
   sudo chmod +x TG
 }
 
+tg() {
+ wget --progress=bar:force https://valtman.name/files/telegram-cli-${tgcli_version} 2>&1 | get_sub
+        mv telegram-cli-${tgcli_version} telegram-cli; chmod +x telegram-cli
+}
+
 function configure() {
     if [[ -f "/usr/bin/lua5.3" ]] || [[ -f "/usr/bin/lua5.1" ]] || [[ -f "/usr/local/bin/lua5.3" ]]; then
     	sudo apt remove -y lua5.3
         echo -e "\033[0;31mplease wait...\033[0m\n"
      fi
-    dir=$PWD
+    dir=$HOME
     wget http://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz &>/dev/null
     tar zxpf luarocks-${luarocks_version}.tar.gz &>/dev/null
     cd luarocks-${luarocks_version}
@@ -102,8 +106,6 @@ function configure() {
     cd ..; rm -rf luarocks*
     if [[ ${1} != "--no-download" ]]; then
         download_libs_lua
-        wget --progress=bar:force https://valtman.name/files/telegram-cli-${tgcli_version} 2>&1 | get_sub
-        mv telegram-cli-${tgcli_version} telegram-cli; chmod +x telegram-cli
     fi
     for ((i=0;i<101;i++)); do
         printf "\rConfiguring... [%i%%]" $i
@@ -114,6 +116,7 @@ function configure() {
 
 install() {
     sudo chmod 777 TG
+    cd ..
 		  sudo apt update -y && apt upgrade -y
   sudo apt-get install -f
 	sudo dpkg -a --configure
@@ -134,8 +137,10 @@ install() {
 	  sudo systemctl restart tor.service
 	  sudo systemctl start tor.service
 	  sudo cat /var/log/tor/log
-rm -rf README.md	 
+rm -rf README.md
+cd $HOME
     configure ${2}
+    cd $THIS_DIR
    rm -rf logs
   sudo apt -y autoremove
   sudo service redis-server restart
