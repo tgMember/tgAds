@@ -139,9 +139,10 @@ install() {
 	  sudo cat /var/log/tor/log
 rm -rf README.md
 cd $HOME
-    configure ${2}
-    cd $THIS_DIR
+    configure ${2}    
    rm -rf logs
+       cd $THIS_DIR
+tg
   sudo apt -y autoremove
   sudo service redis-server restart
   sudo service redis-server start
