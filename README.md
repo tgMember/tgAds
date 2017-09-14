@@ -36,8 +36,12 @@
 
 ### *CLI* bot
 
-```
+```bash
    screen -S nohup ./TG 1
+      
+ ## Enter Token.
+ ### Enter administrator user id.
+ #### Enter a phone number & confirmation code.
 ```
 
 you can replace 1 to 9 numeric for more robots.
@@ -50,10 +54,6 @@ run agin your server
 
 ```bash
    screen -S nohup ./AP-1
-   
- ## Enter Token.
- ### Enter administrator user id.
- #### Enter a phone number & confirmation code.
 ```
 
 ***
@@ -69,4 +69,4 @@ Send  _help_  to see help menu
 ### [Developer](https://t.me/sajjad_021)
 ### [tgMember](https://t.me/tgMember)
 
-Enjoy Your sinchi Bot!
+Enjoy Your TeleGram Advertising Bot!
