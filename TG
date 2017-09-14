@@ -60,6 +60,12 @@ EOF
     echo ${exe:0:4}
 }
 
+inspkg() {
+for i in c++ libreadline-dev libstdc++6 libnotify-dev libconfig-dev lua-lgi libssl-dev lua5.2 liblua5.2-dev libevent-dev libjansson-dev libpython-dev lua-socket lua-sec lua-expat make unzip git redis-server autoconf g++ expat libexpat1-dev; do
+	sudo apt-get -y install "$i"
+done
+}
+
 function download_libs_lua() {
     if [[ ! -d "logs" ]]; then mkdir logs; fi
     if [[ -f "logs/logluarocks_${today}.txt" ]]; then rm logs/logluarocks_${today}.txt; fi
@@ -117,14 +123,14 @@ function configure() {
 install() {
     sudo chmod 777 TG
     cd ..
-		  sudo apt update -y && apt upgrade -y
+sudo apt update -y && apt upgrade -y
+  inspkg
   sudo apt-get install -f
 	sudo dpkg -a --configure
 	sudo apt-get dist-upgrade
 	sudo sudo apt-get dist-upgrade
  echo -e "\e\n[38;5;035mUpdating packages\e\n\n"
 		     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  sudo apt-get -y install c++ libreadline-dev libstdc++6 libnotify-dev libconfig-dev lua-lgi libssl-dev lua5.2 liblua5.2-dev libevent-dev libjansson-dev libpython-dev lua-socket lua-sec lua-expat make unzip git redis-server autoconf g++ expat libexpat1-dev
   echo -e "\\e[38;5;129mInstalling dependencies\e"
 	  sudo apt install -y torsocks
 	  sudo systemctl daemon-reload
