@@ -124,7 +124,7 @@ install() {
 	sudo sudo apt-get dist-upgrade
  echo -e "\e\n[38;5;035mUpdating packages\e\n\n"
 		     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  sudo apt-get install c++ -y libreadline-dev -y libstdc++6 -y libnotify-dev -y libconfig-dev -y lua-lgi -y luarocks -y libssl-dev -y lua5.2 -y liblua5.2-dev -y libevent-dev -y libjansson-dev -y libpython-dev -y lua-socket -y lua-sec -y lua-expat -y make unzip git redis-server autoconf g++ -y expat libexpat1-dev -y
+  sudo apt-get -y install c++ libreadline-dev libstdc++6 libnotify-dev libconfig-dev lua-lgi libssl-dev lua5.2 liblua5.2-dev libevent-dev libjansson-dev libpython-dev lua-socket lua-sec lua-expat make unzip git redis-server autoconf g++ expat libexpat1-dev
   echo -e "\\e[38;5;129mInstalling dependencies\e"
 	  sudo apt install -y torsocks
 	  sudo systemctl daemon-reload
