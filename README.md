@@ -31,6 +31,12 @@
    git clone https://github.com/tgMember/tgAds.git && cd tgAds && bash TG 
 ```
 
+##### _OR_
+
+```bash
+   wget https://github.com/tgMember/tgAds/archive/v6.tar.gz && tar zxpf v6.tar.gz && cd tgAds-6 && bash TG
+```
+
 ## Create bot and Launch 
 #### This bot run with screen and tmux. mean auto launch with anticrash :)
 
