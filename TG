@@ -260,8 +260,8 @@ fi
 conf1() {
   cli="$THIS_DIR"/.TG-$1/TG-$1.lua
 	if [[ ! -f "$THIS_DIR"/.TG-$1/"$cli" ]]; then
-		cat main.lua >> $cli
-		sed -i 's/ADS-ID/'$1'/g' $cli
+		cat main.lua >> "$THIS_DIR"/.TG-$1/TG-$1.lua
+		sed -i 's/ADS-ID/'$1'/g' "$THIS_DIR"/.TG-$1/TG-$1.lua
 	fi
 }
 
@@ -273,7 +273,7 @@ read -rp '' TKN
     echo "#!/bin/bash
 	while true; do
        sudo tmux kill-session -t AP-$1
-			tmux new-session -s AP-$1 "./telegram-cli -s ./.TG-$1/TG-$1.lua -p AP-$1 --bot=$TKN"
+			tmux new-session -s AP-$1 './telegram-cli -s ./.TG-$1/TG-$1.lua -p AP-$1 --bot=$TKN'
         sudo tmux detach -s AP-$1
 	done" >> AP-$1
 	chmod 777 AP-$1
