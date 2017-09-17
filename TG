@@ -34,17 +34,6 @@ function update() {
   sudo chmod +x TG
 }
 
-
-today=`date +%F`
-
-make_progress() {
-exe=`lua <<-EOF
-    print(tonumber($1)/tonumber($2)*100)
-EOF
-`
-    echo ${exe:0:4}
-}
-
 tgcli_version=1214
 
 lualibs=(
@@ -99,13 +88,17 @@ pkg=(
 'luarocksv'
 )
 
+today=`date +%F`
+
+
+
 function download_libs_lua() {
     if [[ ! -d "logs" ]]; then mkdir logs; fi
     if [[ -f "logs/logluarocks_${today}.txt" ]]; then rm logs/logluarocks_${today}.txt; fi
     local i
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
-        printf "\rtgAds: Please Wait ... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
+        printf "\rtgAds: Please Wait ... [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
         "$HOME"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
     done
     sleep 0.2
@@ -122,8 +115,7 @@ function configure() {
      fi
   	git clone https://github.com/keplerproject/luarocks.git &>/dev/null
   	cd luarocks
-  	git checkout tags/v2.4.0 # Current stable &>/dev/null
-
+	
   	PREFIX="$HOME/.luarocks"
 
   	./configure --prefix="$PREFIX" --sysconfdir="$PREFIX"/luarocks --force-config &>/dev/null
@@ -263,6 +255,8 @@ if [ ! -f "telegram-cli" ]; then
   configure
 	wget "https://valtman.name/files/telegram-cli-1214" &>/dev/null
 	mv telegram-cli-1214 telegram-cli; chmod +x telegram-cli
+	rm -rd logs
+	rm -rf README.md
 	echo -e "\n\n\033[1;33mInstall Complete\033[0;00m\n"
   sudo service redis-server restart
   sudo service redis-server start
