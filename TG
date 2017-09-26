@@ -100,7 +100,7 @@ pkg=(
 'redis-server'
 'luarocks'
 'lua5.2'
-'liblua5.2-dev
+'liblua5.2-dev'
 )
 installation() {
 for i in $(seq 1 100); do
