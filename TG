@@ -59,6 +59,19 @@ lualibs=(
 )
 
 pkg=(
+'libconfig-dev'
+'libjansson-dev'
+'libpcre3-dev'
+'libevent-dev'
+'libconfig-dev'
+'luarocks'
+'lua5.2'
+'liblua5.2-dev'
+'redis-server'
+'libssl-dev'
+'libreadline-dev'
+'libpython-dev'
+'libexpat1-dev'
 'git'
 'wget'
 'unzip'
@@ -66,25 +79,18 @@ pkg=(
 'autoconf'
 'c++'
 'g++'
-'install'
-'f'
-'a'
-'build'
-'expat'
 'tmux'
-'screen'
 'openssl'
 'coreutils'
 'g++4.7'
 'c++4.7'
 'lua5.2'
-'libconfig-dev'
-'liblua5.2'
 'liblua5.2-dev'
 'fortune-mod'
 'fortunes'
 'libc6'
 'libpcre3-dev'
+'libconfig-dev'
 'libssl-dev'
 'libreadline-dev'
 'libconfig-dev'
@@ -92,19 +98,12 @@ pkg=(
 'libjansson-dev'
 'libpython-dev'
 'libexpat1-dev'
-'libexpat1'
-'libconfig'
-'libreadline'
 'lua-socket'
 'lua-sec'
 'lua-expat'
-'redis-server'
-'luarocks'
-'lua5.2'
-'liblua5.2-dev'
 )
 
-install_pkg="git wget unzip make autoconf c++ g++ install f a build expat tmux screen openssl coreutils g++4.7 c++4.7 lua5.2 liblua5.2 liblua5.2-dev fortune-mod fortunes libc6 libpcre3-dev libssl-dev  libreadline-dev libconfig-dev libevent-dev libjansson-dev libpython-dev libexpat1-dev libexpat1 libconfig libreadline lua-socket lua-sec lua-expat redis-server luarocks lua5.2 liblua5.2-dev"
+install_pkg="libconfig-dev libjansson-dev libpcre3-dev libevent-dev libconfig-dev luarocks lua5.2 liblua5.2-dev redis-server libssl-dev libreadline-dev libpython-dev libexpat1-dev git wget unzip make autoconf c++ g++ tmux openssl coreutils g++4.7 c++4.7 lua5.2 liblua5.2-dev fortune-mod fortunes libc6 libpcre3-dev libconfig-dev libssl-dev libreadline-dev libconfig-dev libevent-dev libjansson-dev libpython-dev libexpat1-dev lua-socket lua-sec lua-expat"
 
 today=`date +%F`
 
