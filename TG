@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)
 cd "$THIS_DIR"
@@ -34,9 +34,10 @@ function update() {
   sudo chmod +x TG
 }
 
+tgcli_version=1214
+
 lualibs=(
 'luasec'
-'tdcli.lua'
 'socket'
 'luarepl'
 'lbase64 20120807-3'
@@ -95,7 +96,7 @@ function download_libs_lua() {
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
         printf "\rtgAds: Please Wait ... [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
-        "$HOME"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
+        "$THIS_DIR"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
     done
     sleep 0.2
     printf "\nLogfile created: $PWD/logs/logluarocks_${today}.txt\nDone\n"
@@ -104,20 +105,21 @@ function download_libs_lua() {
 function configure() {
     if [[ -f "/usr/bin/lua5.3" ]] || [[ -f "/usr/bin/lua5.1" ]] || [[ -f "/usr/local/bin/lua5.3" ]]; then
     	sudo apt remove -y lua5.3 &>/dev/null
-	sudo apt -y autoremove &>/dev/null
+	    sudo apt -y autoremove &>/dev/null
+	    sudo apt install -y lua5.2 &>/dev/null
       echo -e "\n\033[0;31m TeleGram Advertising Download Libs ... \033[0m\n"
      fi
   	git clone https://github.com/keplerproject/luarocks.git &>/dev/null
   	cd luarocks
 	
-  	PREFIX="$HOME/.luarocks"
+  	PREFIX="$THIS_DIR/.luarocks"
 
   	./configure --prefix="$PREFIX" --sysconfdir="$PREFIX"/luarocks --force-config &>/dev/null
   	make build &>/dev/null
 	sudo make install &>/dev/null
 	make bootstrap &>/dev/null
-	cd ..
-	rm -rd luarocks
+		cd ..
+		rm -rf luarocks
     if [[ ${1} != "--no-download" ]]; then
         download_libs_lua
     fi
@@ -130,8 +132,14 @@ function configure() {
 
 function installation() {
 for i in $(seq 1 100); do  
-    sleep 0.07
-    sudo apt-get -y install $pkg &>> log.txt
+    sleep 0.1
+    sudo apt-get -y update &>/dev/null
+    sudo apt-get -y upgrade &>/dev/null
+    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test &>/dev/null
+    sudo apt-get install -f &>/dev/null
+    sudo apt-get -y install &>/dev/null
+    sudo dpkg -a --configure
+    sudo apt-get -y install $pkg &>/dev/null
     if [ $i -eq 100 ]; then
         echo -e "XXX\n100\nDone!\nXXX"
     elif [ $(($i % 4)) -eq 0 ]; then
@@ -140,7 +148,7 @@ for i in $(seq 1 100); do
     else
         echo $i
     fi 
-done | whiptail --title 'TeleGram Advertising Install Packages' --gauge "${pkg[0]}" 6 60 0
+done | whiptail --title 'TeleGram Advertising bot Install and Configuration' --gauge "${pkg[0]}" 6 60 0
 }
 
 function tgcli_config() {
@@ -260,7 +268,12 @@ if [ ! -f "telegram-cli" ]; then
 	wget "https://valtman.name/files/telegram-cli-1215" &>/dev/null
 	mv telegram-cli-1215 telegram-cli; chmod +x telegram-cli
   echo -e "\n\n\033[1;33mInstall Complete\033[0;00m\n"
- 		 sudo service redis-server restart
- 		 sudo service redis-server start
   echo -e "\n\nCreate and Launch bot => \033[1;32mscreen -S nohup ./TG 1~9\033[0;00m\n"
+  	sudo apt-get -y update &>/dev/null
+   	sudo apt-get -y upgrade &>/dev/null
+    	sudo dpkg -a --configure
+	sudo apt-get install -f &>/dev/null
+   	sudo apt-get -y install &>/dev/null
+ 	sudo service redis-server restart
+ 	sudo service redis-server start
 fi
