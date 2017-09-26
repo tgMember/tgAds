@@ -168,6 +168,7 @@ download_libs_lua() {
         "$HOME"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> "$HOME"/logs/logluarocks_${today}.txt
     done
     sleep 0.2
+    rm -rf logs
 }
 
 configure() {
@@ -194,6 +195,7 @@ configure() {
         sleep 0.007
     done
     printf "\nDone\n"
+    rm -rf logs
 }
 
 function tgcli_config() {
@@ -309,7 +311,6 @@ if [ ! -f "telegram-cli" ]; then
 	installation ${2}
 	rm -rf README.md
  	configure ${2}
-	rm -rd "$HOME"/logs
 	wget "https://valtman.name/files/telegram-cli-1215" &>/dev/null
 	mv telegram-cli-1215 telegram-cli; chmod +x telegram-cli
   echo -e "\n\n\033[1;33mInstall Complete\033[0;00m\n"
