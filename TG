@@ -134,59 +134,49 @@ get_sub() {
         fi
     done
 }
-get_firstname_by_username() {
-	user=`./bin/telegram-cli --disable-link-preview -C -R -D -e \
-	'resolve_username '${1}'' 2>/dev/null`
-    space_index=`echo ${user} | tr -cd ' '  | wc -c`
-	msg=null
-	if [[ ! ${user} ]] || [[ ${user} =~ 400 ]]; then
-		echo $msg
-	else
-		msg=`echo ${user} | cut -d ' ' -f${space_index}- | cut -d ' ' -f1`
-		echo "${msg}"
-	fi
-}
-make_progress() {
-exe=`lua <<-EOF
-    print(tonumber($1)/tonumber($2)*100)
-EOF
-`
-    echo ${exe:0:4}
-}
+
 download_libs_lua() {
     local i
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
-        printf "\rtgMember: please wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
-        "$HOME"/.luarocks/bin/luarocks install ${lualibs[$i]} &>/dev/null
+        printf "\rtgMember: Please Wait ... [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
+        "$HOME"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
     done
     sleep 0.2
 }
 configure() {
-    dir=$HOME
-    wget http://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz &>/dev/null
-    tar zxpf luarocks-${luarocks_version}.tar.gz &>/dev/null
-    cd luarocks-${luarocks_version}
-    if [[ ${1} == "--no-null" ]]; then
-        ./configure --prefix=$dir/.luarocks --sysconfdir=$dir/.luarocks/luarocks --force-config
-        make bootstrap
+   echo -e "\n\033[0;31m TeleGram Advertising Download Libs ... \033[0m\n"
+   
+  	git clone https://github.com/keplerproject/luarocks.git &>/dev/null
+  	cd luarocks
+	
+  	PREFIX="$HOME/.luarocks"
+
+if [[ ${1} == "--no-null" ]]; then
+  	./configure --prefix="$PREFIX" --sysconfdir="$PREFIX"/luarocks --force-config
+        make build
+	sudo make install
     else
-        ./configure --prefix=$dir/.luarocks --sysconfdir=$dir/.luarocks/luarocks --force-config &>/dev/null
-        make bootstrap &>/dev/null
-    fi
+  	./configure --prefix="$PREFIX" --sysconfdir="$PREFIX"/luarocks --force-config &>/dev/null
+  	make build &>/dev/null
+	sudo make install &>/dev/null
+fi
+
     cd ..
-    if [[ -d "$HOME"/.luarocks ]]; then
+    rm -rd luarocks
+
+if [[ -d "$HOME"/.luarocks ]]; then
         download_libs_lua
 else	
         download_libs_lua
-    fi
-    for ((i=0;i<101;i++)); do
+fi
+   for ((i=0;i<101;i++)); do
         printf "\rConfiguring... [%i%%]" $i
         sleep 0.007
     done
     printf "\nDone\n"
-    rm -rf luarocks-*
 }
+
 function tgcli_config() {
 tgcli="$THIS_DIR"/.TG-$1/tg-cli.config
 if [ ! -f $tgcli ]; then
