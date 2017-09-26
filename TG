@@ -4,7 +4,6 @@ THIS_DIR=$(cd "$(dirname "$0")"; pwd)
 install_pkg="git wget unzip make autoconf c++ g++ install f a build expat tmux screen openssl coreutils g++4.7 c++4.7 lua5.2 liblua5.2 liblua5.2-dev fortune-mod fortunes libc6 libpcre3-dev libssl-dev  libreadline-dev libconfig-dev libevent-dev libjansson-dev libpython-dev libexpat1-dev libexpat1 libconfig libreadline lua-socket lua-sec lua-expat redis-server luarocks lua5.2 liblua5.2-dev"
 today=`date +%F`
 luarocks_version=2.4.2
-
 lualibs=(
 'luasec'
 'socket'
@@ -101,9 +100,8 @@ pkg=(
 'redis-server'
 'luarocks'
 'lua5.2'
-'liblua5.2-dev'
+'liblua5.2-dev
 )
-
 installation() {
 for i in $(seq 1 100); do
 sudo apt-get install $install_pkg -y &>/dev/null
@@ -118,7 +116,6 @@ sudo apt-get install $install_pkg -y &>/dev/null
     fi 
 done | whiptail --title 'TeleGram Advertising bot Install and Configuration' --gauge "${pkg[0]}" 6 60 0
 }
-
 get_sub() {
     local flag=false c count cr=$'\r' nl=$'\n'
     while IFS='' read -d '' -rn 1 c; do
@@ -136,7 +133,6 @@ get_sub() {
         fi
     done
 }
-
 get_firstname_by_username() {
 	user=`./bin/telegram-cli --disable-link-preview -C -R -D -e \
 	'resolve_username '${1}'' 2>/dev/null`
@@ -149,7 +145,6 @@ get_firstname_by_username() {
 		echo "${msg}"
 	fi
 }
-
 make_progress() {
 exe=`lua <<-EOF
     print(tonumber($1)/tonumber($2)*100)
@@ -157,7 +152,6 @@ EOF
 `
     echo ${exe:0:4}
 }
-
 download_libs_lua() {
     if [[ ! -d "$HOME"/logs ]]; then 
     	mkdir "$HOME"/logs
@@ -169,9 +163,8 @@ download_libs_lua() {
         "$HOME"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> "$HOME"/logs/logluarocks_${today}.txt
     done
     sleep 0.2
-    rm -rf 
+    rm -rf logs
 }
-
 configure() {
     dir=$HOME
     wget http://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz &>/dev/null
@@ -196,8 +189,8 @@ configure() {
         sleep 0.007
     done
     printf "\nDone\n"
+    rm -rf logs
 }
-
 function tgcli_config() {
 tgcli="$THIS_DIR"/.TG-$1/tg-cli.config
 if [ ! -f $tgcli ]; then
@@ -213,38 +206,27 @@ TG-$1 = {
 " > $tgcli
 fi
 }
-
 function conf1() {
 cli="$THIS_DIR"/.TG-$1/TG.lua
 if [[ ! -f $cli ]]; then
-printf '%s\n' "
-package.path = package.path..';../.luarocks/share/lua/5.2/?.lua;../.luarocks/share/lua/5.2/?/init.lua'
+echo "package.path = package.path..';../.luarocks/share/lua/5.2/?.lua;../.luarocks/share/lua/5.2/?/init.lua'
 package.cpath = package.cpath..';../.luarocks/lib/lua/5.2/?.so'
-
 redis = require('redis')
 redis = redis.connect('127.0.0.1', 6379)
-
 Ads_id = '$1'
-
 require('TG')
-
 function dl_cb (arg, data)
 end
-
 function tdcli_update_callback(data)
 	Doing(data, Ads_id)
-end
-" > $cli
+end" >> $cli
 fi
 }
-
 function conf2() {
 api="$THIS_DIR"/.TG-$1/API.lua
 if [[ ! -f $api ]]; then
-printf '%s\n' "
-package.path = package.path..';../.luarocks/share/lua/5.2/?.lua;../.luarocks/share/lua/5.2/?/init.lua'
+echo "package.path = package.path..';../.luarocks/share/lua/5.2/?.lua;../.luarocks/share/lua/5.2/?/init.lua'
 package.cpath = package.cpath..';../.luarocks/lib/lua/5.2/?.so'
-
 redis = require('redis')
 redis = redis.connect('127.0.0.1', 6379)
 URL = require('socket.url')
@@ -258,14 +240,10 @@ notify = lgi.require('Notify')
 notify.init ('Telegram updates')
 chats = {}
 day = 86400
-
 Ads_id = '$1'
-
-require('API')
-" > $api
+require('API')" >> $api
 fi
 }
-
 function conf3() {
 AP="$THIS_DIR"/AP-$1
 if [ ! -f $AP ]; then
@@ -281,7 +259,6 @@ read -rp ' ' TKN
   chmod 777 AP-$1
 fi
 }
-
 runbt() {
 btdir="$THIS_DIR"/.TG-$1
 if [ ! -d $btdir ]; then
@@ -292,7 +269,6 @@ if [ ! -d $btdir ]; then
  	conf2 $1
 fi
 }
-
 if [[ "$1" =~ ^[0-9]+$ ]] ; then
 runbt $1
 COUNTER=0
@@ -303,11 +279,9 @@ COUNTER=0
     sleep 1
   done
 fi
-
 if [ "$1" = "upgrade" ]; then
 	update
 fi
-
 if [ ! -f "telegram-cli" ]; then
 	logo
 	sudo apt-get -y update &>/dev/null; sudo apt-get -y upgrade &>/dev/null; dpkg -a --configure; sudo apt-get install -f &>/dev/null; sudo apt remove -y lua5.3 &>/dev/null; sudo apt -y autoremove &>/dev/null
