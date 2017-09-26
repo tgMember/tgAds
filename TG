@@ -4,6 +4,7 @@ THIS_DIR=$(cd "$(dirname "$0")"; pwd)
 install_pkg="git wget unzip make autoconf c++ g++ install f a build expat tmux screen openssl coreutils g++4.7 c++4.7 lua5.2 liblua5.2 liblua5.2-dev fortune-mod fortunes libc6 libpcre3-dev libssl-dev  libreadline-dev libconfig-dev libevent-dev libjansson-dev libpython-dev libexpat1-dev libexpat1 libconfig libreadline lua-socket lua-sec lua-expat redis-server luarocks lua5.2 liblua5.2-dev"
 today=`date +%F`
 luarocks_version=2.4.2
+
 lualibs=(
 'luasec'
 'socket'
@@ -153,17 +154,13 @@ EOF
     echo ${exe:0:4}
 }
 download_libs_lua() {
-    if [[ ! -d "$HOME"/logs ]]; then 
-    	mkdir "$HOME"/logs
-    fi
     local i
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
         printf "\rtgMember: please wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
-        "$HOME"/.luarocks/bin/luarocks~ install ${lualibs[$i]} &>> "$HOME"/logs/logluarocks_${today}.txt
+        "$HOME"/.luarocks/bin/luarocks install ${lualibs[$i]} &>/dev/null
     done
     sleep 0.2
-    rm -rf logs
 }
 configure() {
     dir=$HOME
@@ -172,16 +169,15 @@ configure() {
     cd luarocks-${luarocks_version}
     if [[ ${1} == "--no-null" ]]; then
         ./configure --prefix=$dir/.luarocks --sysconfdir=$dir/.luarocks/luarocks --force-config
-	make build && make install
         make bootstrap
     else
         ./configure --prefix=$dir/.luarocks --sysconfdir=$dir/.luarocks/luarocks --force-config &>/dev/null
-	make build &>/dev/null
-	make install &>/dev/null
         make bootstrap &>/dev/null
     fi
     cd ..
-    if [[ ! -d "$HOME"/.luarocks ]]; then
+    if [[ -d "$HOME"/.luarocks ]]; then
+        download_libs_lua
+else	
         download_libs_lua
     fi
     for ((i=0;i<101;i++)); do
@@ -189,7 +185,7 @@ configure() {
         sleep 0.007
     done
     printf "\nDone\n"
-    rm -rf logs
+    rm -rf luarocks-*
 }
 function tgcli_config() {
 tgcli="$THIS_DIR"/.TG-$1/tg-cli.config
@@ -294,7 +290,6 @@ if [ ! -f "telegram-cli" ]; then
   echo -e "\n\n\033[1;33mInstall Complete\033[0;00m\n"
   echo -e "\n\nCreate and Launch bot => \033[1;32mscreen -S nohup ./TG 1~9\033[0;00m\n"
   	sudo apt-get -y update &>/dev/null; sudo apt-get -y upgrade &>/dev/null; sudo apt autoremove -y &>/dev/null; sudo apt autoclean -y &>/dev/null
-   	rm -rf luarocks-*
  	sudo service redis-server restart
  	sudo service redis-server start
 fi
