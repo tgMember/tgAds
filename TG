@@ -34,8 +34,6 @@ function update() {
   sudo chmod +x TG
 }
 
-tgcli_version=1214
-
 lualibs=(
 'luasec'
 'socket'
@@ -48,7 +46,6 @@ lualibs=(
 'Lua-cURL'
 'multipart-post'
 'lanes'
-'multipart-post'
 'luaexpat'
 'redis-lua'
 'lua-cjson'
@@ -84,7 +81,7 @@ pkg=(
 'g++'
 'libjansson-dev'
 'expat'
-'luarocksv'
+'luarocks'
 )
 
 today=`date +%F`
@@ -95,31 +92,25 @@ function download_libs_lua() {
     local i
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
-        printf "\rtgAds: Please Wait ... [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
-        "$THIS_DIR"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
+        printf "\rPlease Wait ... [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
+        "$PWD"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
     done
     sleep 0.2
     printf "\nLogfile created: $PWD/logs/logluarocks_${today}.txt\nDone\n"
 }
 
 function configure() {
-    if [[ -f "/usr/bin/lua5.3" ]] || [[ -f "/usr/bin/lua5.1" ]] || [[ -f "/usr/local/bin/lua5.3" ]]; then
-    	sudo apt remove -y lua5.3 &>/dev/null
-	    sudo apt -y autoremove &>/dev/null
-	    sudo apt install -y lua5.2 &>/dev/null
       echo -e "\n\033[0;31m TeleGram Advertising Download Libs ... \033[0m\n"
-     fi
   	git clone https://github.com/keplerproject/luarocks.git &>/dev/null
   	cd luarocks
 	
-  	PREFIX="$THIS_DIR/.luarocks"
+  	PREFIX="$PWD/.luarocks"
 
   	./configure --prefix="$PREFIX" --sysconfdir="$PREFIX"/luarocks --force-config &>/dev/null
   	make build &>/dev/null
-	sudo make install &>/dev/null
-	make bootstrap &>/dev/null
-		cd ..
-		rm -rf luarocks
+	make install &>/dev/null
+	cd ..
+	rm -rf luarocks
     if [[ ${1} != "--no-download" ]]; then
         download_libs_lua
     fi
@@ -257,12 +248,15 @@ if [ ! -f "telegram-cli" ]; then
 	logo
 	sudo apt-get -y update &>/dev/null
     	sudo apt-get -y upgrade &>/dev/null
-    	sudo apt-get -y install -f &>/dev/null
-    	sudo apt-get -y install &>/dev/null
     	sudo dpkg -a --configure
-	installation
+	sudo apt-get -y install -f &>/dev/null
+    	sudo apt-get -y install &>/dev/null
+    	sudo apt remove -y lua5.3 &>/dev/null
+	sudo apt -y autoremove &>/dev/null
+	sudo apt install -y lua5.2 &>/dev/null
+	installation ${2}
 	rm -rf README.md
- 	configure
+ 	configure ${2}
 	rm -rd logs
 	wget "https://valtman.name/files/telegram-cli-1215" &>/dev/null
 	mv telegram-cli-1215 telegram-cli; chmod +x telegram-cli
