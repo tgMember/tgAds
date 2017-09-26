@@ -160,7 +160,7 @@ download_libs_lua() {
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
         printf "\rtgMember: please wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
-        "$HOME"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> "$HOME"/logs/logluarocks_${today}.txt
+        "$HOME"/.luarocks/bin/luarocks~ install ${lualibs[$i]} &>> "$HOME"/logs/logluarocks_${today}.txt
     done
     sleep 0.2
     rm -rf logs
