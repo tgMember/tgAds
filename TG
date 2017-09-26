@@ -4,6 +4,7 @@ THIS_DIR=$(cd "$(dirname "$0")"; pwd)
 install_pkg="git wget unzip make autoconf c++ g++ install f a build expat tmux screen openssl coreutils g++4.7 c++4.7 lua5.2 liblua5.2 liblua5.2-dev fortune-mod fortunes libc6 libpcre3-dev libssl-dev  libreadline-dev libconfig-dev libevent-dev libjansson-dev libpython-dev libexpat1-dev libexpat1 libconfig libreadline lua-socket lua-sec lua-expat redis-server luarocks lua5.2 liblua5.2-dev"
 today=`date +%F`
 luarocks_version=2.4.2
+
 lualibs=(
 'luasec'
 'socket'
@@ -100,7 +101,7 @@ pkg=(
 'redis-server'
 'luarocks'
 'lua5.2'
-'liblua5.2-dev
+'liblua5.2-dev'
 )
 
 installation() {
@@ -168,7 +169,7 @@ download_libs_lua() {
         "$HOME"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> "$HOME"/logs/logluarocks_${today}.txt
     done
     sleep 0.2
-    rm -rf logs
+    rm -rf 
 }
 
 configure() {
@@ -195,7 +196,6 @@ configure() {
         sleep 0.007
     done
     printf "\nDone\n"
-    rm -rf logs
 }
 
 function tgcli_config() {
@@ -217,7 +217,8 @@ fi
 function conf1() {
 cli="$THIS_DIR"/.TG-$1/TG.lua
 if [[ ! -f $cli ]]; then
-echo "package.path = package.path..';../.luarocks/share/lua/5.2/?.lua;../.luarocks/share/lua/5.2/?/init.lua'
+printf '%s\n' "
+package.path = package.path..';../.luarocks/share/lua/5.2/?.lua;../.luarocks/share/lua/5.2/?/init.lua'
 package.cpath = package.cpath..';../.luarocks/lib/lua/5.2/?.so'
 
 redis = require('redis')
@@ -232,14 +233,16 @@ end
 
 function tdcli_update_callback(data)
 	Doing(data, Ads_id)
-end" >> $cli
+end
+" > $cli
 fi
 }
 
 function conf2() {
 api="$THIS_DIR"/.TG-$1/API.lua
 if [[ ! -f $api ]]; then
-echo "package.path = package.path..';../.luarocks/share/lua/5.2/?.lua;../.luarocks/share/lua/5.2/?/init.lua'
+printf '%s\n' "
+package.path = package.path..';../.luarocks/share/lua/5.2/?.lua;../.luarocks/share/lua/5.2/?/init.lua'
 package.cpath = package.cpath..';../.luarocks/lib/lua/5.2/?.so'
 
 redis = require('redis')
@@ -258,7 +261,8 @@ day = 86400
 
 Ads_id = '$1'
 
-require('API')" >> $api
+require('API')
+" > $api
 fi
 }
 
