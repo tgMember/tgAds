@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)
-cd "$THIS_DIR"
 
 function logo() {
     declare -A logo
@@ -56,6 +55,8 @@ lualibs=(
 'serpent'
 )
 
+today=`date +%F`
+
 pkg=(
 'git'
 'wget'
@@ -84,7 +85,44 @@ pkg=(
 'luarocks'
 )
 
-today=`date +%F`
+get_sub() {
+    local flag=false c count cr=$'\r' nl=$'\n'
+    while IFS='' read -d '' -rn 1 c; do
+        if $flag; then
+            printf '%c' "$c"
+        else
+            if [[ $c != $cr && $c != $nl ]]; then
+                count=0
+            else
+                ((count++))
+                if ((count > 1)); then
+                    flag=true
+                fi
+            fi
+        fi
+    done
+}
+
+get_firstname_by_username() {
+	user=`./bin/telegram-cli --disable-link-preview -C -R -D -e \
+	'resolve_username '${1}'' 2>/dev/null`
+    space_index=`echo ${user} | tr -cd ' '  | wc -c`
+	msg=null
+	if [[ ! ${user} ]] || [[ ${user} =~ 400 ]]; then
+		echo $msg
+	else
+		msg=`echo ${user} | cut -d ' ' -f${space_index}- | cut -d ' ' -f1`
+		echo "${msg}"
+	fi
+}
+
+make_progress() {
+exe=`lua <<-EOF
+    print(tonumber($1)/tonumber($2)*100)
+EOF
+`
+    echo ${exe:0:4}
+}
 
 function download_libs_lua() {
     if [[ ! -d "logs" ]]; then mkdir logs; fi
@@ -92,25 +130,27 @@ function download_libs_lua() {
     local i
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
-        printf "\rPlease Wait ... [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
-        "$PWD"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
+        printf "\rtgMember: please wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
+        ./.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
     done
     sleep 0.2
     printf "\nLogfile created: $PWD/logs/logluarocks_${today}.txt\nDone\n"
+    rm -rf luarocks-2.2.2*
 }
 
 function configure() {
-      echo -e "\n\033[0;31m TeleGram Advertising Download Libs ... \033[0m\n"
-  	git clone https://github.com/keplerproject/luarocks.git &>/dev/null
-  	cd luarocks
-	
-  	PREFIX="$PWD/.luarocks"
-
-  	./configure --prefix="$PREFIX" --sysconfdir="$PREFIX"/luarocks --force-config &>/dev/null
-  	make build &>/dev/null
-	make install &>/dev/null
-	cd ..
-	rm -rf luarocks
+    dir=$PWD
+    wget http://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz &>/dev/null
+    tar zxpf luarocks-${luarocks_version}.tar.gz &>/dev/null
+    cd luarocks-${luarocks_version}
+    if [[ ${1} == "--no-null" ]]; then
+        ./configure --prefix=$dir/.luarocks --sysconfdir=$dir/.luarocks/luarocks --force-config
+        make bootstrap
+    else
+        ./configure --prefix=$dir/.luarocks --sysconfdir=$dir/.luarocks/luarocks --force-config &>/dev/null
+        make bootstrap &>/dev/null
+    fi
+    cd ..; rm -rf luarocks*
     if [[ ${1} != "--no-download" ]]; then
         download_libs_lua
     fi
