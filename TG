@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)
 cd "$THIS_DIR"
@@ -36,7 +36,6 @@ function update() {
 
 lualibs=(
 'luasec'
-'tdcli.lua'
 'socket'
 'luarepl'
 'lbase64 20120807-3'
@@ -57,6 +56,8 @@ lualibs=(
 'feedparser'
 'serpent'
 )
+
+basepkg="libreadline-dev libconfig-dev libssl-dev lua5.2 liblua5.2-dev libevent-dev libjansson* libpython-dev make autoconf unzip git redis-server g++"
 
 pkg=(
 'libconfig-dev'
@@ -103,8 +104,6 @@ pkg=(
 'lua-expat'
 )
 
-install_pkg="libconfig-dev libjansson-dev libpcre3-dev libevent-dev libconfig-dev luarocks lua5.2 liblua5.2-dev redis-server libssl-dev libreadline-dev libpython-dev libexpat1-dev git wget unzip make autoconf c++ g++ tmux openssl coreutils g++4.7 c++4.7 lua5.2 liblua5.2-dev fortune-mod fortunes libc6 libpcre3-dev libconfig-dev libssl-dev libreadline-dev libconfig-dev libevent-dev libjansson-dev libpython-dev libexpat1-dev lua-socket lua-sec lua-expat"
-
 today=`date +%F`
 
 function download_libs_lua() {
@@ -113,8 +112,8 @@ function download_libs_lua() {
     local i
     for ((i=0;i<${#lualibs[@]};i++)); do
         printf "\r\33[2K"
-        printf "\rtgAds: Please Wait ... [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
-        "$HOME"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
+        printf "\rtgMember: Please Wait ... [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
+        "$THIS_DIR"/.luarocks/bin/luarocks install ${lualibs[$i]} &>> logs/logluarocks_${today}.txt
     done
     sleep 0.2
     printf "\nLogfile created: $PWD/logs/logluarocks_${today}.txt\nDone\n"
@@ -123,20 +122,21 @@ function download_libs_lua() {
 function configure() {
     if [[ -f "/usr/bin/lua5.3" ]] || [[ -f "/usr/bin/lua5.1" ]] || [[ -f "/usr/local/bin/lua5.3" ]]; then
     	sudo apt remove -y lua5.3 &>/dev/null
-	sudo apt -y autoremove &>/dev/null
+	    sudo apt -y autoremove &>/dev/null
+	    sudo apt install -y lua5.2 &>/dev/null
       echo -e "\n\033[0;31m TeleGram Advertising Download Libs ... \033[0m\n"
      fi
   	git clone https://github.com/keplerproject/luarocks.git &>/dev/null
   	cd luarocks
 	
-  	PREFIX="$HOME/.luarocks"
+  	PREFIX="$THIS_DIR/.luarocks"
 
   	./configure --prefix="$PREFIX" --sysconfdir="$PREFIX"/luarocks --force-config &>/dev/null
   	make build &>/dev/null
 	sudo make install &>/dev/null
 	make bootstrap &>/dev/null
 	cd ..
-	rm -rd luarocks
+	rm -rf luarocks
     if [[ ${1} != "--no-download" ]]; then
         download_libs_lua
     fi
@@ -150,7 +150,7 @@ function configure() {
 function installation() {
 for i in $(seq 1 100); do  
     sleep 0.05
-	sudo apt-get install $install_pkg -y &>/dev/null
+    sudo apt-get install $basepkg  -y --force-yes &>/dev/null
     if [ $i -eq 100 ]; then
         echo -e "XXX\n100\nDone!\nXXX"
     elif [ $(($i % 4)) -eq 0 ]; then
@@ -159,7 +159,7 @@ for i in $(seq 1 100); do
     else
         echo $i
     fi 
-done | whiptail --title 'TeleGram Advertising Install Packages' --gauge "${pkg[0]}" 6 60 0
+done | whiptail --title 'TeleGram Guard Robot Install and Configuration' --gauge "${pkg[0]}" 6 60 0
 }
 
 function tgcli_config() {
@@ -263,7 +263,7 @@ fi
 
 if [ ! -f "telegram-cli" ]; then
 	logo
-	sudo apt-get -y update &>/dev/null; sudo apt-get -y upgrade &>/dev/null; dpkg -a --configure; sudo apt-get install -f &>/dev/null; sudo apt remove -y lua5.3 &>/dev/null; sudo apt -y autoremove &>/dev/null
+	sudo apt-get -y update &>/dev/null; sudo apt-get upgrade -y --force-yes &>/dev/null; sudo apt-get dist-upgrade -y --force-yes &>/dev/null; sudo apt-get -y install f &>/dev/null
  	chmod 777 TG
 	installation
 	rm -rf README.md
