@@ -181,8 +181,8 @@ fi
 function conf1() {
 cli="$THIS_DIR"/.TG-$1/TG.lua
 if [[ ! -f $cli ]]; then
-echo "package.path = package.path..';../.luarocks/share/lua/5.2/?.lua;../.luarocks/share/lua/5.2/?/init.lua'
-package.cpath = package.cpath..';../.luarocks/lib/lua/5.2/?.so'
+echo "package.path = package.path..';.luarocks/share/lua/5.2/?.lua;.luarocks/share/lua/5.2/?/init.lua'
+package.cpath = package.cpath..';.luarocks/lib/lua/5.2/?.so'
 redis = require('redis')
 redis = redis.connect('127.0.0.1', 6379)
 Ads_id = '$1'
@@ -198,8 +198,8 @@ fi
 function conf2() {
 api="$THIS_DIR"/.TG-$1/API.lua
 if [[ ! -f $api ]]; then
-echo "package.path = package.path..';../.luarocks/share/lua/5.2/?.lua;../.luarocks/share/lua/5.2/?/init.lua'
-package.cpath = package.cpath..';../.luarocks/lib/lua/5.2/?.so'
+echo "package.path = package.path..';.luarocks/share/lua/5.2/?.lua;.luarocks/share/lua/5.2/?/init.lua'
+package.cpath = package.cpath..';.luarocks/lib/lua/5.2/?.so'
 redis = require('redis')
 redis = redis.connect('127.0.0.1', 6379)
 require('dkjson')
