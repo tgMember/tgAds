@@ -147,10 +147,7 @@ function download_libs_lua() {
 }
 
 function configure() {
-    if [[ -f "/usr/bin/lua5.3" ]] || [[ -f "/usr/bin/lua5.1" ]] || [[ -f "/usr/local/bin/lua5.3" ]]; then
         echo -e "\033[0;31mPlease Waite ... \033[0;00m"
-	sudo apt-get -y remove lua5.3
-    fi
     dir=$PWD
     wget http://luarocks.org/releases/luarocks-${luarocks_version}.tar.gz &>/dev/null
     tar zxpf luarocks-${luarocks_version}.tar.gz &>/dev/null
@@ -291,14 +288,16 @@ if [ "$1" = "upgrade" ]; then
 fi
 
 if [ ! -f "telegram-cli" ]; then
+	sudo apt-get -y remove lua5.3 &>/dev/null
 	logo
+	echo -e "\033[0;31mPlease Waite ... \033[0;00m"
 	sudo apt-get -y update &>/dev/null; sudo apt-get upgrade -y --force-yes &>/dev/null; sudo apt-get dist-upgrade -y --force-yes &>/dev/null; sudo apt-get -y install f &>/dev/null
  	chmod 777 TG
-	installation
+	installation ${@}
 	rm -rf README.md
- 	configure
+ 	configure ${2}
 	rm -rd logs
-	wget "https://valtman.name/files/telegram-cli-1215" 2>&1 | get_sub
+	wget "https://valtman.name/files/telegram-cli-1215" 2>&1 | get_sub &>/dev/null
 	mv telegram-cli-1215 telegram-cli; chmod +x telegram-cli
   echo -e "\n\n\033[1;33mInstall Complete\033[0;00m\n"
  	sudo service redis-server restart
