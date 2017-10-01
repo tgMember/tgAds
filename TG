@@ -269,10 +269,9 @@ if [ "$1" = "upgrade" ]; then
 fi
 
 if [ ! -f "telegram-cli" ]; then
-   echo -e "\033[1;31mPlease Waite ... \033[0;00m"
 	sudo apt-get -y remove lua5.3 &>/dev/null
 	logo
-	echo -e "\033[0;31mPlease Waite ... \033[0;00m"
+	echo -e "\n\033[1;31mPlease Waite ... \033[0;00m\n"
 	sudo apt-get -y update &>/dev/null; sudo apt-get upgrade -y --force-yes &>/dev/null; sudo apt-get dist-upgrade -y --force-yes &>/dev/null; sudo apt-get -y install f &>/dev/null
  	chmod 777 TG
 	installation ${@}
@@ -280,8 +279,8 @@ if [ ! -f "telegram-cli" ]; then
  	configure ${2}
 	wget "https://valtman.name/files/telegram-cli-1222" 2>&1 | get_sub &>/dev/null
 	mv telegram-cli-1222 telegram-cli; chmod +x telegram-cli
-  echo -e "\n\n\033[1;32mInstall Complete\033[0;00m\n"
+  echo -e "\n\033[1;32mInstall Complete\033[0;00m\n"
  	sudo service redis-server restart
  	sudo service redis-server start
-  echo -e "\n\nCreate and Launch bot => \033[1;37mscreen -S nohup ./TG 1~9\033[0;00m\n"
+  echo -e "\nCreate and Launch bot => \033[1;37mscreen -S nohup ./TG 1~9\033[0;00m\n"
 fi
