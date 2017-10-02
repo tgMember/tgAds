@@ -140,7 +140,7 @@ function configure() {
         download_libs_lua
     fi
 		for ((i=0;i<101;i++)); do
-        printf "\n\rConfiguring... [%i%%]\n" $i
+        printf "\rConfiguring... [%i%%]" $i
         sleep 0.007
     done
 }
@@ -201,12 +201,7 @@ echo "package.path = package.path..';.luarocks/share/lua/5.2/?.lua;.luarocks/sha
 package.cpath = package.cpath..';.luarocks/lib/lua/5.2/?.so'
 redis = require('redis')
 redis = redis.connect('127.0.0.1', 6379)
-URL = require('socket.url')
-ltn12 = require('ltn12')
-http = require('socket.http')
-require('cjson')
 lgi = require('lgi')
-https = require('ssl.https')
 serpent = require('serpent')
 notify = lgi.require('Notify')
 notify.init ('Telegram updates')
