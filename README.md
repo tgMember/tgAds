@@ -31,16 +31,10 @@
    git clone https://github.com/tgMember/tgAds.git && cd tgAds && bash TG 
 ```
 
-##### _OR_
-
-```bash
-   wget https://github.com/tgMember/tgAds/archive/v6.tar.gz && tar zxpf v6.tar.gz && cd tgAds-6 && bash TG
-```
 
 ## Create bot and Launch 
 #### This bot run with screen and tmux. mean auto launch with anticrash :)
 
-### *CLI* bot
 
 ```bash
    screen -S nohup ./TG 1
@@ -51,16 +45,6 @@
 ```
 
 you can replace 1 to 9 numeric for more robots.
-
-***
-
-### *API* bot
-
-run agin your server
-
-```bash
-   screen -S nohup ./AP-1
-```
 
 ***
 
