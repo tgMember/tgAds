@@ -1,0 +1,284 @@
+#!/bin/bash
+
+THIS_DIR=$(cd "$(dirname "$0")"; pwd)
+cd "$THIS_DIR"
+
+luarocks_version=2.4.2
+
+function logo() {
+    declare -A logo
+    seconds="0.002"
+logo[0]="  .          '||    ||' '||'''|  '||    ||' '||'|.  '||'''|  '||''|."
+logo[1]=".||.   ... .  |||  |||   || .     |||  |||   ||  ||  || .     ||   ||"
+logo[2]=" ||   || ||   |'|..'||   ||'|     |'|..'||   ||''|.  ||'|     ||''|'"
+logo[3]=" ||    |''    | '|' ||   ||       | '|' ||   ||   || ||       ||   |."
+logo[4]=" '|.' '|||.  .|. | .||. .||....| .|. | .||. .||..|' .||....| .||.  '|'"
+logo[5]="    .|...'"
+logo[6]=""
+logo[7]="Channel : @tgMember"
+logo[8]="Develop by @sajjad_021"
+printf "\e[38;5;213m\t"
+    for i in ${!logo[@]}; do
+        for x in `seq 0 ${#logo[$i]}`; do
+            printf "${logo[$i]:$x:1}"
+            sleep $seconds
+        done
+        printf "\n\t"
+    done
+printf "\n"
+}
+
+function update() {
+  sudo git pull
+  sudo git fetch --all
+  sudo git reset --hard origin/master
+  sudo git pull origin master
+  sudo chmod +x TG
+}
+
+lualibs=(
+'luasec'
+'lbase64'
+'luafilesystem'
+'luasocket'
+'dkjson'
+'ltn12'
+'lgi'
+'redis-lua'
+'lua-cjson'
+'fakeredis'
+'feedparser'
+'serpent'
+'--server=http://luarocks.org/dev openssl'
+'lluv-ssl'
+)
+
+pkg=(
+'libreadline-dev'
+'libconfig-dev'
+'libssl-dev'
+'lua5.2'
+'liblua5.2-dev'
+'libevent-dev'
+'lua-sec'
+'lua-lgi'
+'openssl'
+'gcc'
+'make'
+'unzip'
+'git'
+'wget'
+'redis-server'
+'c++'
+'g++'
+'libjansson-dev'
+'libpython-dev'
+'libnotify-dev'
+'autoconf'
+'expat'
+'libexpat1-dev'
+'luarocks'
+'lua5.1'
+'lua5.1-dev'
+'lua-socket'
+'curl'
+'libcurl4-gnutls-dev'
+'screen'
+'tmux'
+'libstdc++6'
+)
+
+today=`date +%F`
+
+get_sub() {
+    local flag=FALSE c count cr=$'\r' nl=$'\n'
+    while IFS='' read -d '' -rn 1 c; do
+        if $flag; then
+            printf '%c' "$c"
+        else
+            if [[ $c != $cr && $c != $nl ]]; then
+                count=0
+            else
+                ((count++))
+                if ((count > 1)); then
+                    flag=TRUE
+                fi
+            fi
+        fi
+    done
+}
+
+make_progress() {
+exe=`lua <<-EOF
+    print(tonumber($1)/tonumber($2)*100)
+EOF
+`
+    echo ${exe:0:4}
+}
+
+function download_libs_lua() {
+    local i
+    for ((i=0;i<${#lualibs[@]};i++)); do
+        printf "\r\33[2K"
+        printf "\rtgMember: wait... [`make_progress $(($i+1)) ${#lualibs[@]}`%%] [$(($i+1))/${#lualibs[@]}] ${lualibs[$i]}"
+        sudo luarocks install ${lualibs[$i]} &>> .logluarocks.txt
+    done
+    sleep 0.2
+    cd ..; rm -rf luarocks-2.2.2*
+}
+
+function configure() {
+    dir=$PWD
+     wget http://luarocks.org/releases/luarocks-2.2.2.tar.gz &>> .install.log
+      tar zxpf luarocks-2.2.2.tar.gz &>> .install.log
+      cd luarocks-2.2.2
+      ./configure &>> .install.log
+	sudo make bootstrap &>> .install.log
+    if [[ ${1} != "--no-download" ]]; then
+        download_libs_lua
+       rm -rf luarocks*
+	wget "https://valtman.name/files/telegram-cli-1222" 2>&1 | get_sub &>> .install.log
+	mv telegram-cli-1222 telegram-cli; chmod +x telegram-cli
+    fi
+   for ((i=0;i<101;i++)); do
+        printf "\rConfiguring... [%i%%]" $i
+        sleep 0.007
+    done
+}
+
+installation() {
+for i in $(seq 1 100); do
+ 	sudo apt-get install ${pkg[$i]} -y --force-yes &>> .is1.out
+   sleep 1
+    if [ $i -eq 100 ]; then
+        echo -e "XXX\n100\nInstall Luarocks and Download Libs\nXXX"
+    elif [ $(($i % 3)) -eq 0 ]; then
+        let "is = $i / 3"
+       echo -e "XXX\n$i\n${pkg[is]}\nXXX"
+	sudo apt-get install ${pkg[is]} -y --force-yes &>> .is2.out
+   else
+        echo $i
+    fi 
+done | whiptail --title 'TeleGram Guard bot Install and Configuration' --gauge "${pkg[0]}" 6 60 0
+}
+
+function conf1() {
+cli="$THIS_DIR"/.TG-$1/TG.lua
+if [[ ! -f $cli ]]; then
+echo "serpent = require('serpent')
+lgi = require('lgi')
+redis = require('redis')
+socket = require('socket')
+URL = require('socket.url')
+http = require('socket.http')
+https = require('ssl.https')
+redis = redis.connect('127.0.0.1', 6379)
+ltn12 = require('ltn12')
+json = require('cjson')
+notify = lgi.require('Notify')
+http.TIMEOUT = 10
+notify.init('Telegram updates')
+Ads_id = '$1'
+require('TG')
+function dl_cb (arg, data)
+end
+function tdcli_update_callback(data)
+	Doing(data, Ads_id)
+end
+function reload(chat_id,msg_id)
+	loadfile('~/tgAds/TG.lua')()
+	dofile('TG.lua')
+	send(chat_id, msg_id, Done)
+end" >> $cli
+fi
+}
+
+function conf2() {
+api="$THIS_DIR"/.TG-$1/API.lua
+if [[ ! -f $api ]]; then
+echo "serpent = require('serpent')
+lgi = require('lgi')
+redis = require('redis')
+socket = require('socket')
+URL = require('socket.url')
+http = require('socket.http')
+https = require('ssl.https')
+redis = redis.connect('127.0.0.1', 6379)
+ltn12 = require('ltn12')
+json = require('cjson')
+notify = lgi.require('Notify')
+http.TIMEOUT = 10
+notify.init('Telegram updates')
+Ads_id = '$1'
+require('TG')
+function dl_cb (arg, data)
+end
+function vardump (value)
+  print(serpent.block(value, {comment = false}))
+end
+function tdcli_update_callback(data)
+	Doing(data, Ads_id)
+end
+function reload(chat_id,msg_id)
+	loadfile('~/tgAds/TG.lua')()
+	dofile('API.lua')
+	send(chat_id, msg_id, Done)
+end" >> $api
+fi
+}
+
+conf3() {
+ echo -e "\n\033[38;5;27mYou must enter the token to create API robot : \n\033[38;5;208m\n\033[6;48m\n"
+read -rp '>>> ENTER >> TOKEN > ' TKN
+redis-cli set AP-$1 $TKN
+}
+
+runbt() {
+btdir="$THIS_DIR"/.TG-$1
+	if [ ! -d $btdir ]; then
+ 		mkdir -p "$THIS_DIR"/.TG-$1
+ 		conf3 $1
+ 		conf1 $1
+ 		conf2 $1
+	fi
+}
+
+runapi() {
+nohup ./telegram-cli -IvWvAvDvR -s ./.TG-$1/API.lua -p AP-$1 --bot=$(redis-cli get AP-$1) -L ./TG-$1/telegram-api.log  -E -l $1 $@ &> ./.TG-$1/nohup.out &
+}
+
+if [[ "$1" =~ ^[0-9]+$ ]] ; then
+runbt $1
+runapi $1
+COUNTER=0
+  while [ $COUNTER -lt 5 ]; do
+       	 tmux kill-session -t TG-$1
+	 	tmux new-session -s TG-$1 "./telegram-cli -IvWvAvDvR -s ./.TG-$1/TG.lua -p TG-$1 -L ./.TG-$1/telegram-cli.log -E -l $1 $@"
+         tmux detach -s TG-$1
+    sleep 1
+  done
+fi
+
+if [ "$1" = "upgrade" ]; then
+	update
+fi
+
+if [ ! -f "telegram-cli" ]; then
+logo
+	echo -e "\n\033[1;31mPlease Waite ... \033[0;00m\n"
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y  &>> .install.log
+sudo apt-get autoclean -y  &>> .install.log
+sudo apt-get autoremove -y &>> .install.log
+printf "\e[38;0;0m\t"
+	sudo apt-get -y remove lua5.3 &>> .install.log
+	sudo dpkg --configure -a &>> .install.log
+	sudo apt-get -y install -f  &>> .install.log
+ 	chmod 777 TG
+	installation ${@}
+	rm -rf README.md
+ 	configure ${2}
+  echo -e "\n\033[1;32mInstall Complete\033[0;00m\n"
+ 	sudo service redis-server restart &> .install.log
+ 	sudo service redis-server start &> .install.log
+  echo -e "\nCreate and Launch bot => \033[1;37mscreen -S nohup ./TG 1~9\033[0;00m\n"
+fi
