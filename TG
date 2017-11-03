@@ -138,7 +138,7 @@ function configure() {
         download_libs_lua
        rm -rf luarocks*
 	wget "https://valtman.name/files/telegram-cli-1222" 2>&1 | get_sub &>> .install.log
-	mv telegram-cli-1222 telegram-cli; chmod +x telegram-cli
+	mv telegram-cli-1222 telegram-cli; chmod 7777 telegram-cli
     fi
    for ((i=0;i<101;i++)); do
         printf "\rConfiguring... [%i%%]" $i
@@ -159,7 +159,7 @@ for i in $(seq 1 100); do
    else
         echo $i
     fi 
-done | whiptail --title 'TeleGram Guard bot Install and Configuration' --gauge "${pkg[0]}" 6 60 0
+done | whiptail --title 'TeleGram Advertising bot Install and Configuration' --gauge "${pkg[0]}" 6 60 0
 }
 
 function conf1() {
@@ -244,7 +244,7 @@ btdir="$THIS_DIR"/.TG-$1
 }
 
 runapi() {
-nohup ./telegram-cli -IvWvAvDvR -s ./.TG-$1/API.lua -p AP-$1 --bot=$(redis-cli get AP-$1) -L ./TG-$1/telegram-api.log  -E -l $1 $@ &> ./.TG-$1/nohup.out &
+nohup ./telegram-cli -s ./.TG-$1/API.lua -p AP-$1 --bot=$(redis-cli get AP-$1) -L ./.TG-$1/telegram-api.log &> ./.TG-$1/nohup.out &
 }
 
 if [[ "$1" =~ ^[0-9]+$ ]] ; then
