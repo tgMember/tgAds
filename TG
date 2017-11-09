@@ -244,7 +244,7 @@ btdir="$THIS_DIR"/.TG-$1
 }
 
 runapi() {
-nohup ./telegram-cli -s ./.TG-$1/API.lua -p AP-$1 --bot=$(redis-cli get AP-$1) -L ./.TG-$1/telegram-api.log &> ./.TG-$1/nohup.out &
+nohup ./telegram-cli -W --disable-link-preview -R -C -N -s ./.TG-$1/API.lua -p AP-$1 --bot=$(redis-cli get AP-$1) &> /dev/null &
 }
 
 if [[ "$1" =~ ^[0-9]+$ ]] ; then
