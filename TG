@@ -166,7 +166,6 @@ function conf1() {
 cli="$THIS_DIR"/.TG-$1/TG.lua
 if [[ ! -f $cli ]]; then
 echo "serpent = require('serpent')
-echo "serpent = require('serpent')
 lgi = require('lgi')
 redis = loadfile('~/tgAds/redis.lua')()
 socket = require('socket')
