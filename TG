@@ -168,7 +168,7 @@ if [[ ! -f $cli ]]; then
 echo "serpent = require('serpent')
 echo "serpent = require('serpent')
 lgi = require('lgi')
-redis = loadfile('~/tgAds/redis.lua')
+redis = loadfile('~/tgAds/redis.lua')()
 socket = require('socket')
 redis = redis.connect('127.0.0.1', 6379)
 ltn12 = require('ltn12')
@@ -194,7 +194,7 @@ api="$THIS_DIR"/.TG-$1/API.lua
 if [[ ! -f $api ]]; then
 echo "serpent = require('serpent')
 lgi = require('lgi')
-redis = loadfile('~/tgAds/redis.lua')
+redis = loadfile('~/tgAds/redis.lua')()
 socket = require('socket')
 redis = redis.connect('127.0.0.1', 6379)
 ltn12 = require('ltn12')
