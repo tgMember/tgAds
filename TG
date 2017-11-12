@@ -166,17 +166,13 @@ function conf1() {
 cli="$THIS_DIR"/.TG-$1/TG.lua
 if [[ ! -f $cli ]]; then
 echo "serpent = require('serpent')
+echo "serpent = require('serpent')
 lgi = require('lgi')
-redis = require('redis')
+redis = loadfile('~/tgAds/redis.lua')
 socket = require('socket')
-URL = require('socket.url')
-http = require('socket.http')
-https = require('ssl.https')
 redis = redis.connect('127.0.0.1', 6379)
 ltn12 = require('ltn12')
-json = require('cjson')
 notify = lgi.require('Notify')
-http.TIMEOUT = 10
 notify.init('Telegram updates')
 Ads_id = '$1'
 require('TG')
@@ -198,16 +194,11 @@ api="$THIS_DIR"/.TG-$1/API.lua
 if [[ ! -f $api ]]; then
 echo "serpent = require('serpent')
 lgi = require('lgi')
-redis = require('redis')
+redis = loadfile('~/tgAds/redis.lua')
 socket = require('socket')
-URL = require('socket.url')
-http = require('socket.http')
-https = require('ssl.https')
 redis = redis.connect('127.0.0.1', 6379)
 ltn12 = require('ltn12')
-json = require('cjson')
 notify = lgi.require('Notify')
-http.TIMEOUT = 10
 notify.init('Telegram updates')
 Ads_id = '$1'
 require('TG')
