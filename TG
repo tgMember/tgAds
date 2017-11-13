@@ -137,7 +137,7 @@ function configure() {
     if [[ ${1} != "--no-download" ]]; then
         download_libs_lua
        rm -rf luarocks*
-	wget "https://valtman.name/files/telegram-cli-1222" 2>&1 | get_sub &>> .install.log
+	wget "https://valtman.name/files/telegram-cli-1222" --no-check-certificate 2>&1 | get_sub &>> .install.log
 	mv telegram-cli-1222 telegram-cli; chmod 7777 telegram-cli
     fi
    for ((i=0;i<101;i++)); do
