@@ -3,8 +3,6 @@
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)
 cd "$THIS_DIR"
 
-luarocks_version=2.4.2
-
 function logo() {
     declare -A logo
     seconds="0.002"
@@ -88,8 +86,6 @@ pkg=(
 'libstdc++6'
 )
 
-today=`date +%F`
-
 get_sub() {
     local flag=FALSE c count cr=$'\r' nl=$'\n'
     while IFS='' read -d '' -rn 1 c; do
@@ -148,14 +144,14 @@ function configure() {
 
 installation() {
 for i in $(seq 1 100); do
- 	sudo apt-get install ${pkg[$i]} -y --force-yes &>> .is1.out
-   sleep 0.5
+ 	sudo apt-get install ${pkg[$i]} -y --force-yes &>> .install.log
+   sleep 0.2
     if [ $i -eq 100 ]; then
         echo -e "XXX\n100\nInstall Luarocks and Download Libs\nXXX"
     elif [ $(($i % 3)) -eq 0 ]; then
         let "is = $i / 3"
        echo -e "XXX\n$i\n${pkg[is]}\nXXX"
-	sudo apt-get install ${pkg[is]} -y --force-yes &>> .is2.out
+	sudo apt-get install ${pkg[is]} -y --force-yes &>> .install.log
    else
         echo $i
     fi 
@@ -166,13 +162,10 @@ function conf1() {
 cli="$THIS_DIR"/.TG-$1/TG.lua
 if [[ ! -f $cli ]]; then
 echo "serpent = require('serpent')
-lgi = require('lgi')
 redis = require('redis')
 socket = require('socket')
 redis = redis.connect('127.0.0.1', 6379)
 ltn12 = require('ltn12')
-notify = lgi.require('Notify')
-notify.init('Telegram updates')
 Ads_id = '$1'
 require('TG')
 function dl_cb (arg, data)
@@ -183,7 +176,7 @@ end
 function reload(chat_id,msg_id)
 	loadfile('~/tgAds/TG.lua')()
 	dofile('TG.lua')
-	send(chat_id, msg_id, Done)
+	send(msg.chat_id_, msg.id_, 'Done')
 end" >> $cli
 fi
 }
@@ -192,19 +185,13 @@ function conf2() {
 api="$THIS_DIR"/.TG-$1/API.lua
 if [[ ! -f $api ]]; then
 echo "serpent = require('serpent')
-lgi = require('lgi')
 redis = require('redis')
 socket = require('socket')
 redis = redis.connect('127.0.0.1', 6379)
 ltn12 = require('ltn12')
-notify = lgi.require('Notify')
-notify.init('Telegram updates')
 Ads_id = '$1'
 require('TG')
 function dl_cb (arg, data)
-end
-function vardump (value)
-  print(serpent.block(value, {comment = false}))
 end
 function tdcli_update_callback(data)
 	Doing(data, Ads_id)
@@ -212,7 +199,7 @@ end
 function reload(chat_id,msg_id)
 	loadfile('~/tgAds/TG.lua')()
 	dofile('API.lua')
-	send(chat_id, msg_id, Done)
+	send(msg.chat_id_, msg.id_, 'Done')
 end" >> $api
 fi
 }
@@ -234,7 +221,7 @@ btdir="$THIS_DIR"/.TG-$1
 }
 
 runapi() {
-nohup ./telegram-cli -W --disable-link-preview -R -C -N -s ./.TG-$1/API.lua -p AP-$1 --bot=$(redis-cli get AP-$1) &> /dev/null &
+nohup ./telegram-cli --disable-link-preview -R -C -N -s ./.TG-$1/API.lua -p AP-$1 --bot=$(redis-cli get AP-$1) &> /dev/null &
 }
 
 if [[ "$1" =~ ^[0-9]+$ ]] ; then
@@ -257,8 +244,6 @@ if [ ! -f "telegram-cli" ]; then
 logo
 	echo -e "\n\033[1;31mPlease Waite ... \033[0;00m\n"
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y  &>> .install.log
-sudo apt-get autoclean -y  &>> .install.log
-sudo apt-get autoremove -y &>> .install.log
 printf "\e[38;0;0m\t"
 	sudo apt-get -y remove lua5.3 &>> .install.log
 	sudo dpkg --configure -a &>> .install.log
@@ -268,7 +253,6 @@ printf "\e[38;0;0m\t"
 	rm -rf README.md
  	configure ${2}
   echo -e "\n\033[1;32mInstall Complete\033[0;00m\n"
- 	sudo service redis-server restart &> .install.log
- 	sudo service redis-server start &> .install.log
+ 	sudo service redis-server restart &>> .install.log
   echo -e "\nCreate and Launch bot => \033[1;37mscreen -S nohup ./TG 1~9\033[0;00m\n"
 fi
