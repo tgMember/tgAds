@@ -197,16 +197,15 @@ end" >> $api
 fi
 }
 
-conf3() {
+function conf3() {
  echo -e "\n\033[38;5;27mYou must enter the token to create API robot : \n\033[38;5;208m\n\033[6;48m\n"
 read -rp '>>> ENTER >> TOKEN > ' TKN
 redis-cli set AP-$1 $TKN
 }
 
-sudo() {
+function setsudo() {
  read -p 'put your user-Id :'  -e input
-  echo Start to Login $input
-	redis-cli sadd tg:$1:sudo $input
+  redis-cli sadd tg:$1:sudo $input
 }
 
 runbt() {
@@ -214,7 +213,7 @@ btdir="$THIS_DIR"/.TG-$1
  	if [ ! -d $btdir ]; then
 		redis-cli set tg:$1:sudoset true
  		mkdir -p "$THIS_DIR"/.TG-$1
-		sudo $1
+		setsudo $1
  		conf3 $1
  		conf1 $1
  		conf2 $1
@@ -225,26 +224,9 @@ runapi() {
 nohup ./telegram-cli -p AP-$1 --disable-link-preview -R -C -s ./.TG-$1/API.lua --bot=$(redis-cli get AP-$1) &> /dev/null &
 }
 
-if [[ "$1" =~ ^[0-9]+$ ]] ; then
-runbt $1
-redis-cli setex tg:$1:automsg 740 true
-runapi $1
-COUNTER=0
-  while [ $COUNTER -lt 5 ]; do
-       	 tmux kill-session -t TG-$1
-	 	tmux new-session -s TG-$1 "./telegram-cli -RvIvWvAvD -p TG-$1 -s ./.TG-$1/TG.lua -L ./.TG-$1/telegram-cli.log -E -l $1 $@"
-         tmux detach -s TG-$1
-    sleep 1
-  done
-fi
-
-if [ "$1" = "upgrade" ]; then
-	update
-fi
-
 if [ ! -f "telegram-cli" ]; then
 logo
-	echo -e "\n\033[1;31mPlease Waite ... \033[0;00m\n"
+echo -e "\n\033[1;31mPlease Waite ... \033[0;00m\n"
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y  &>> .install.log
 printf "\e[38;0;0m\t"
 	sudo apt-get -y remove lua5.3 &>> .install.log
@@ -257,4 +239,17 @@ printf "\e[38;0;0m\t"
   echo -e "\n\033[1;32mInstall Complete\033[0;00m\n"
  	sudo service redis-server restart &>> .install.log
   echo -e "\nCreate and Launch bot => \033[1;37mscreen -S nohup ./TG 1~9\033[0;00m\n"
+elif [ "$1" = "upgrade" ]; then
+	update
+elif [[ "$1" =~ ^[0-9]+$ ]] ; then
+runbt $1
+runapi $1
+redis-cli setex tg:$1:automsg 740 true
+COUNTER=0
+  while [ $COUNTER -lt 5 ]; do
+       	 tmux kill-session -t TG-$1
+	 	tmux new-session -s TG-$1 "./telegram-cli -RvIvWvAvD -p TG-$1 -s ./.TG-$1/TG.lua -L ./.TG-$1/telegram-cli.log -E -l $1 $@"
+         tmux detach -s TG-$1
+    sleep 1
+  done
 fi
